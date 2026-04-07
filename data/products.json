@@ -1,0 +1,96 @@
+{
+  "items": [
+    {
+      "title": "Panier Mini Hammam",
+      "price": "11€",
+      "badge": "Idéal cadeau Henna Day",
+      "delay": "Délai : 2 semaines maximum",
+      "image": "https://placehold.co/600x500/F5EFE6/C9A84C?text=Panier+Mini",
+      "order": 1,
+      "composition": [
+        "Petit seau en cuivre",
+        "Mini flacon fleur d'oranger",
+        "2 mini flacons verre (roses séchées + henné)",
+        "Rouge à lèvres marocain 24h",
+        "Mini sucre marocain décoré henné",
+        "Carte personnalisée Perle de Fès"
+      ],
+      "whatsappMessage": "Bonjour, je suis intéressée par le Panier Mini Hammam à 11€."
+    },
+    {
+      "title": "Panier Essentiel Hammam",
+      "price": "35€",
+      "badge": "Personnalisation possible",
+      "delay": "Délai : 2 semaines maximum",
+      "image": "https://placehold.co/600x500/F5EFE6/C9A84C?text=Panier+Essentiel",
+      "order": 2,
+      "composition": [
+        "Seau moyen en cuivre",
+        "Foulard Zif Hayati",
+        "Kessa — gant de gommage traditionnel",
+        "Savon noir marocain au choix (classique / nila / aker fassi)",
+        "Eau de rose",
+        "Huile au choix 30ml (coco / argan)",
+        "Aker Fassi",
+        "Rouge à lèvres marocain 24h",
+        "Pochette élégante brodée"
+      ],
+      "whatsappMessage": "Bonjour, je suis intéressée par le Panier Essentiel Hammam à 35€."
+    },
+    {
+      "title": "Panier Premium Hammam",
+      "price": "55€",
+      "badge": "Idéal future mariée",
+      "delay": "Délai : 2 semaines maximum",
+      "image": "https://placehold.co/600x500/F5EFE6/C9A84C?text=Panier+Premium",
+      "order": 3,
+      "composition": [
+        "Grand seau en cuivre",
+        "Tous les produits du Panier Essentiel",
+        "Mini bol en cuivre",
+        "Pochette élégante brodée",
+        "Encens Saghrina de Fès avec mabkhara",
+        "Spray oud pour le corps",
+        "Petite serviette brodée",
+        "Foulard \"Madame la Mariée\" en arabe ou simple",
+        "Personnalisation complète possible — Sur devis"
+      ],
+      "whatsappMessage": "Bonjour, je suis intéressée par le Panier Premium Hammam à 55€."
+    },
+    {
+      "title": "Dragées Marocaines Orientales",
+      "price": "À partir de 1,50€/pièce",
+      "badge": "Prix adapté selon quantité",
+      "delay": "Délai : 2 à 3 semaines",
+      "image": "https://placehold.co/600x500/F5EFE6/C9A84C?text=Drag%C3%A9es",
+      "order": 4,
+      "composition": [
+        "Dragées marocaines orientales — tous modèles",
+        "Vendues vides ou remplies au choix",
+        "Personnalisation : prénom, date, couleur",
+        "Prix dégressif selon quantité",
+        "Minimum 20 pièces"
+      ],
+      "whatsappMessage": "Bonjour, je suis intéressée par les Dragées Marocaines Orientales."
+    },
+    {
+      "title": "Papeterie Personnalisée",
+      "price": "À partir de 1,50€/pièce",
+      "badge": "Modèles sur demande",
+      "delay": "Délai : 2 à 3 semaines",
+      "image": "https://placehold.co/600x500/F5EFE6/C9A84C?text=Papeterie",
+      "order": 5,
+      "composition": [
+        "Tout type de papeterie souhaitée sur demande",
+        "Cartes de remerciement — minimum 10 pièces",
+        "Cartes d'invitation mariage / henné — minimum 25 pièces",
+        "Menus personnalisés",
+        "Tous modèles disponibles — personnalisation complète",
+        "Texte en français, en arabe ou bilingue",
+        "Prix dégressif selon quantité",
+        "Enveloppes disponibles sur demande"
+      ],
+      "whatsappMessage": "Bonjour, je suis intéressée par la Papeterie Personnalisée."
+    }
+  ]
+}

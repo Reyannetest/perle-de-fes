@@ -1,0 +1,42 @@
+{
+  "hero": {
+    "title": "Perle de Fès",
+    "subtitle": "L'art de personnaliser vos plus beaux souvenirs",
+    "tagline": "Cadeaux & créations marocaines faits avec amour, pour vos mariages, hennés et événements.",
+    "cta": "Découvrir nos créations"
+  },
+  "presentation": {
+    "title": "Le Maroc dans chaque détail",
+    "text": "Perle de Fès est née de mon attachement profond à la culture marocaine et ses traditions. Chaque création est pensée avec soin pour célébrer vos plus beaux moments avec élégance et authenticité.",
+    "features": ["Fait main", "Avec amour", "Personnalisable"]
+  },
+  "products": {
+    "title": "Nos Créations",
+    "subtitle": "Chaque pièce est unique, faite à la main, personnalisable selon vos envies."
+  },
+  "quote": {
+    "title": "Demande de devis personnalisé",
+    "subtitle": "Remplissez le formulaire et je vous répondrai sous 24-48h !",
+    "successMessage": "Merci ! Votre demande a bien été envoyée. Je vous répondrai sous 24-48h via WhatsApp ou mail."
+  },
+  "contact": {
+    "title": "Contactez-moi",
+    "subtitle": "Commandes et devis par mail ou WhatsApp. Livraison France entière. Délai 2 semaines paniers, 2-3 semaines papeterie et dragées. Selon stock disponible.",
+    "whatsapp": "06 52 37 55 78",
+    "whatsappNumber": "33652375578",
+    "instagram": "@perledefes.creation",
+    "instagramUrl": "https://instagram.com/perledefes.creation",
+    "email": "perledefes@outlook.com",
+    "deliveryInfo": [
+      "Paniers : 2 semaines max",
+      "Papeterie & Dragées : 2 à 3 semaines",
+      "Selon stock disponible",
+      "Livraison France entière — Colissimo ou Mondial Relay"
+    ]
+  },
+  "footer": {
+    "brand": "Perle de Fès",
+    "tagline": "Cadeaux & créations marocaines personnalisées",
+    "copyright": "Tous droits réservés 2025"
+  }
+}

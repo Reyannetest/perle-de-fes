@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perle de Fès — Cadeaux & créations marocaines personnalisées</title>
+    <meta name="description" content="Cadeaux orientaux élégants pour mariages, hennés et événements. Paniers hammam, dragées et papeterie personnalisés. Livraison France entière.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Perle de Fès — Cadeaux marocaines personnalisées">
+    <meta property="og:description" content="Créations artisanales marocaines pour vos plus beaux moments.">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fr_FR">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Netlify Identity (pour admin CMS) -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ============================================
+         HEADER & NAVIGATION
+    ============================================ -->
+    <header class="header" id="header">
+        <div class="header__container">
+            <a href="#accueil" class="header__logo">
+                <span class="header__logo-text">Perle de Fès</span>
+            </a>
+
+            <nav class="nav" id="nav">
+                <ul class="nav__list">
+                    <li class="nav__item">
+                        <a href="#accueil" class="nav__link active">Accueil</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#produits" class="nav__link">Nos Produits</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#devis" class="nav__link">Commande & Devis</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#contact" class="nav__link">Contact</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <button class="nav__toggle" id="navToggle" aria-label="Menu">
+                <span class="nav__toggle-bar"></span>
+                <span class="nav__toggle-bar"></span>
+                <span class="nav__toggle-bar"></span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- ============================================
+             SECTION HERO
+        ============================================ -->
+        <section class="hero" id="accueil">
+            <div class="hero__overlay"></div>
+            <div class="hero__content">
+                <div class="hero__ornament">
+                    <!-- SVG Ornament marocain -->
+                    <svg viewBox="0 0 200 30" class="hero__ornament-svg">
+                        <path d="M0,15 Q25,0 50,15 T100,15 T150,15 T200,15" stroke="currentColor" fill="none" stroke-width="1"/>
+                        <circle cx="100" cy="15" r="4" fill="currentColor"/>
+                        <circle cx="50" cy="15" r="2" fill="currentColor"/>
+                        <circle cx="150" cy="15" r="2" fill="currentColor"/>
+                    </svg>
+                </div>
+                <h1 class="hero__title">Perle de Fès</h1>
+                <p class="hero__subtitle">L'art de personnaliser vos plus beaux souvenirs</p>
+                <p class="hero__tagline">Cadeaux & créations marocaines faits avec amour, pour vos mariages, hennés et événements.</p>
+                <a href="#produits" class="btn btn--primary hero__cta">Découvrir nos créations</a>
+                <div class="hero__ornament hero__ornament--bottom">
+                    <svg viewBox="0 0 200 30" class="hero__ornament-svg">
+                        <path d="M0,15 Q25,30 50,15 T100,15 T150,15 T200,15" stroke="currentColor" fill="none" stroke-width="1"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="hero__scroll-indicator">
+                <span></span>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION SÉPARATEUR
+        ============================================ -->
+        <div class="section-divider">
+            <svg viewBox="0 0 400 40" class="divider__svg">
+                <path d="M0,20 L150,20" stroke="currentColor" fill="none" stroke-width="1"/>
+                <polygon points="200,5 210,20 200,35 190,20" fill="currentColor"/>
+                <path d="M250,20 L400,20" stroke="currentColor" fill="none" stroke-width="1"/>
+            </svg>
+        </div>
+
+        <!-- ============================================
+             SECTION PRÉSENTATION
+        ============================================ -->
+        <section class="presentation" id="presentation">
+            <div class="container">
+                <div class="presentation__content animate-on-scroll">
+                    <h2 class="section__title">Le Maroc dans chaque détail</h2>
+                    <div class="presentation__text">
+                        <p>Perle de Fès est née de mon attachement profond à la culture marocaine et ses traditions. Chaque création est pensée avec soin pour célébrer vos plus beaux moments avec élégance et authenticité.</p>
+                    </div>
+                    <div class="presentation__features">
+                        <div class="feature">
+                            <div class="feature__icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                                </svg>
+                            </div>
+                            <span class="feature__text">Fait main</span>
+                        </div>
+                        <div class="feature">
+                            <div class="feature__icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                </svg>
+                            </div>
+                            <span class="feature__text">Avec amour</span>
+                        </div>
+                        <div class="feature">
+                            <div class="feature__icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 6v6l4 2"/>
+                                </svg>
+                            </div>
+                            <span class="feature__text">Personnalisable</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION SÉPARATEUR
+        ============================================ -->
+        <div class="section-divider">
+            <svg viewBox="0 0 400 40" class="divider__svg">
+                <path d="M0,20 L150,20" stroke="currentColor" fill="none" stroke-width="1"/>
+                <polygon points="200,5 210,20 200,35 190,20" fill="currentColor"/>
+                <path d="M250,20 L400,20" stroke="currentColor" fill="none" stroke-width="1"/>
+            </svg>
+        </div>
+
+        <!-- ============================================
+             SECTION PRODUITS
+        ============================================ -->
+        <section class="products" id="produits">
+            <div class="container">
+                <div class="products__header animate-on-scroll">
+                    <h2 class="section__title">Nos Créations</h2>
+                    <p class="section__subtitle">Chaque pièce est unique, faite à la main, personnalisable selon vos envies.</p>
+                </div>
+
+                <div class="products__grid">
+                    <!-- Les produits sont chargés dynamiquement depuis /data/products/ -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             MODALE PRODUIT — Design Luxueux Oriental
+        ============================================ -->
+        <div class="modal" id="modal">
+            <div class="modal__backdrop"></div>
+            <div class="modal__container">
+                <!-- Ornement supérieur -->
+                <div class="modal__ornament modal__ornament--top">
+                    <svg viewBox="0 0 300 24" fill="none">
+                        <path d="M0,12 Q37.5,0 75,12 T150,12 T225,12 T300,12" stroke="currentColor" stroke-width="1" fill="none"/>
+                        <circle cx="150" cy="12" r="5" fill="currentColor"/>
+                        <circle cx="75" cy="12" r="3" fill="currentColor"/>
+                        <circle cx="225" cy="12" r="3" fill="currentColor"/>
+                        <path d="M140,12 L145,7 L150,12 L145,17 Z" fill="currentColor"/>
+                        <path d="M160,12 L155,7 L150,12 L155,17 Z" fill="currentColor"/>
+                    </svg>
+                </div>
+
+                <button class="modal__close" aria-label="Fermer">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+
+                <div class="modal__content">
+                    <!-- Section Image avec cadre décoratif -->
+                    <div class="modal__image-section">
+                        <div class="modal__image-frame">
+                            <div class="modal__image-corner modal__image-corner--tl"></div>
+                            <div class="modal__image-corner modal__image-corner--tr"></div>
+                            <div class="modal__image-corner modal__image-corner--bl"></div>
+                            <div class="modal__image-corner modal__image-corner--br"></div>
+                            <img src="" alt="" class="modal__image" id="modalImage">
+                        </div>
+                        <div class="modal__image-badge" id="modalBadge"></div>
+                    </div>
+
+                    <!-- Section Détails -->
+                    <div class="modal__details">
+                        <div class="modal__header">
+                            <h3 class="modal__title" id="modalTitle"></h3>
+                            <div class="modal__price-wrapper">
+                                <span class="modal__price-label">Prix</span>
+                                <p class="modal__price" id="modalPrice"></p>
+                            </div>
+                        </div>
+
+                        <div class="modal__divider">
+                            <svg viewBox="0 0 200 12" fill="none">
+                                <path d="M0,6 L80,6" stroke="currentColor" stroke-width="1"/>
+                                <polygon points="100,0 106,6 100,12 94,6" fill="currentColor"/>
+                                <path d="M120,6 L200,6" stroke="currentColor" stroke-width="1"/>
+                            </svg>
+                        </div>
+
+                        <div class="modal__composition">
+                            <h4>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18">
+                                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                Composition
+                            </h4>
+                            <ul id="modalComposition"></ul>
+                        </div>
+
+                        <div class="modal__footer">
+                            <p class="modal__delay" id="modalDelay">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 6v6l4 2"/>
+                                </svg>
+                                <span></span>
+                            </p>
+                            <a href="" class="btn btn--primary modal__cta" id="modalCta" target="_blank" rel="noopener">
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                </svg>
+                                Commander sur WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ornement inférieur -->
+                <div class="modal__ornament modal__ornament--bottom">
+                    <svg viewBox="0 0 300 24" fill="none">
+                        <path d="M0,12 Q37.5,24 75,12 T150,12 T225,12 T300,12" stroke="currentColor" stroke-width="1" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SECTION SÉPARATEUR
+        ============================================ -->
+        <div class="section-divider">
+            <svg viewBox="0 0 400 40" class="divider__svg">
+                <path d="M0,20 L150,20" stroke="currentColor" fill="none" stroke-width="1"/>
+                <polygon points="200,5 210,20 200,35 190,20" fill="currentColor"/>
+                <path d="M250,20 L400,20" stroke="currentColor" fill="none" stroke-width="1"/>
+            </svg>
+        </div>
+
+        <!-- ============================================
+             SECTION FORMULAIRE DEVIS
+        ============================================ -->
+        <section class="quote" id="devis">
+            <div class="container">
+                <div class="quote__header animate-on-scroll">
+                    <h2 class="section__title">Demande de devis personnalisé</h2>
+                    <p class="section__subtitle">Remplissez le formulaire et je vous répondrai sous 24-48h !</p>
+                </div>
+
+                <form class="quote__form animate-on-scroll" id="quoteForm">
+                    <div class="form__row">
+                        <div class="form__group">
+                            <label for="name" class="form__label">Prénom et Nom *</label>
+                            <input type="text" id="name" name="name" class="form__input" required>
+                        </div>
+                        <div class="form__group">
+                            <label for="phone" class="form__label">Téléphone *</label>
+                            <input type="tel" id="phone" name="phone" class="form__input" required>
+                        </div>
+                    </div>
+
+                    <div class="form__row">
+                        <div class="form__group">
+                            <label for="email" class="form__label">Email *</label>
+                            <input type="email" id="email" name="email" class="form__input" required>
+                        </div>
+                        <div class="form__group">
+                            <label for="productType" class="form__label">Type de produit *</label>
+                            <select id="productType" name="productType" class="form__select" required>
+                                <option value="" disabled selected>Choisir un produit</option>
+                                <option value="Panier Mini">Panier Mini</option>
+                                <option value="Panier Essentiel">Panier Essentiel</option>
+                                <option value="Panier Premium">Panier Premium</option>
+                                <option value="Dragées">Dragées</option>
+                                <option value="Papeterie">Papeterie</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form__row">
+                        <div class="form__group">
+                            <label for="quantity" class="form__label">Quantité *</label>
+                            <input type="number" id="quantity" name="quantity" class="form__input" min="1" required>
+                        </div>
+                        <div class="form__group">
+                            <label for="eventDate" class="form__label">Date de l'événement *</label>
+                            <input type="date" id="eventDate" name="eventDate" class="form__input" required>
+                        </div>
+                    </div>
+
+                    <div class="form__row">
+                        <div class="form__group form__group--full">
+                            <label for="eventType" class="form__label">Type d'événement *</label>
+                            <select id="eventType" name="eventType" class="form__select" required>
+                                <option value="" disabled selected>Type d'événement</option>
+                                <option value="Mariage">Mariage</option>
+                                <option value="Henné">Henné</option>
+                                <option value="Anniversaire">Anniversaire</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form__group">
+                        <label for="personalization" class="form__label">Personnalisation</label>
+                        <textarea id="personalization" name="personalization" class="form__textarea" rows="3" placeholder="Couleurs souhaitées, prénom à broder, détails spéciaux..."></textarea>
+                    </div>
+
+                    <div class="form__group">
+                        <label for="message" class="form__label">Message</label>
+                        <textarea id="message" name="message" class="form__textarea" rows="3" placeholder="Questions ou précisions supplémentaires..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn--primary form__submit">
+                        Envoyer ma demande
+                    </button>
+                </form>
+
+                <!-- Message de confirmation -->
+                <div class="quote__success" id="formSuccess">
+                    <div class="quote__success-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <p class="quote__success-text">Merci ! Votre demande a bien été envoyée. Je vous répondrai sous 24-48h via WhatsApp ou mail.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION SÉPARATEUR
+        ============================================ -->
+        <div class="section-divider">
+            <svg viewBox="0 0 400 40" class="divider__svg">
+                <path d="M0,20 L150,20" stroke="currentColor" fill="none" stroke-width="1"/>
+                <polygon points="200,5 210,20 200,35 190,20" fill="currentColor"/>
+                <path d="M250,20 L400,20" stroke="currentColor" fill="none" stroke-width="1"/>
+            </svg>
+        </div>
+
+        <!-- ============================================
+             SECTION CONTACT
+        ============================================ -->
+        <section class="contact" id="contact">
+            <div class="container">
+                <div class="contact__header animate-on-scroll">
+                    <h2 class="section__title">Contactez-moi</h2>
+                    <p class="section__subtitle">Commandes et devis par mail ou WhatsApp. Livraison France entière. Délai 2 semaines paniers, 2-3 semaines papeterie et dragées. Selon stock disponible.</p>
+                </div>
+
+                <div class="contact__grid animate-on-scroll">
+                    <!-- WhatsApp -->
+                    <a href="https://wa.me/33652375578?text=Bonjour%2C%20je%20suis%20int%C3%A9ress%C3%A9e%20par%20vos%20cr%C3%A9ations%20Perle%20de%20F%C3%A8s%20!" class="contact__card" target="_blank" rel="noopener">
+                        <div class="contact__icon contact__icon--whatsapp">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                            </svg>
+                        </div>
+                        <h3 class="contact__title">WhatsApp</h3>
+                        <p class="contact__info">06 52 37 55 78</p>
+                        <span class="contact__cta">Envoyer un message</span>
+                    </a>
+
+                    <!-- Instagram -->
+                    <a href="https://instagram.com/perledefes.creation" class="contact__card" target="_blank" rel="noopener">
+                        <div class="contact__icon contact__icon--instagram">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                        </div>
+                        <h3 class="contact__title">Instagram</h3>
+                        <p class="contact__info">@perledefes.creation</p>
+                        <span class="contact__cta">Voir le profil</span>
+                    </a>
+
+                    <!-- Email -->
+                    <a href="mailto:perledefes@outlook.com" class="contact__card">
+                        <div class="contact__icon contact__icon--email">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                        </div>
+                        <h3 class="contact__title">Email</h3>
+                        <p class="contact__info">perledefes@outlook.com</p>
+                        <span class="contact__cta">Envoyer un email</span>
+                    </a>
+                </div>
+
+                <div class="contact__delivery animate-on-scroll">
+                    <h4>Informations livraison</h4>
+                    <ul>
+                        <li><strong>Paniers :</strong> 2 semaines max</li>
+                        <li><strong>Papeterie & Dragées :</strong> 2 à 3 semaines</li>
+                        <li>Selon stock disponible</li>
+                        <li><strong>Livraison France entière</strong> — Colissimo ou Mondial Relay</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============================================
+         FOOTER
+    ============================================ -->
+    <footer class="footer">
+        <div class="footer__ornament">
+            <svg viewBox="0 0 400 20" class="footer__ornament-svg">
+                <path d="M0,10 Q50,0 100,10 T200,10 T300,10 T400,10" stroke="currentColor" fill="none" stroke-width="1"/>
+            </svg>
+        </div>
+        <div class="container">
+            <div class="footer__content">
+                <p class="footer__brand">Perle de Fès</p>
+                <p class="footer__tagline">Cadeaux & créations marocaines personnalisées</p>
+                <div class="footer__contact">
+                    <a href="mailto:perledefes@outlook.com">perledefes@outlook.com</a>
+                    <span>•</span>
+                    <a href="tel:+33652375578">06 52 37 55 78</a>
+                    <span>•</span>
+                    <a href="https://instagram.com/perledefes.creation" target="_blank" rel="noopener">Instagram : perledefes.creation</a>
+                </div>
+                <p class="footer__copy">Tous droits réservés 2025</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================
+         BOUTON WHATSAPP FIXE
+    ============================================ -->
+    <a href="https://wa.me/33652375578?text=Bonjour%2C%20je%20suis%20int%C3%A9ress%C3%A9e%20par%20vos%20cr%C3%A9ations%20Perle%20de%20F%C3%A8s%20!"
+       class="whatsapp-float"
+       target="_blank"
+       rel="noopener"
+       aria-label="Contacter sur WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+    </a>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+
+    <!-- Redirection après login Netlify Identity vers /admin/ -->
+    <script>
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", function(user) {
+          if (!user) {
+            window.netlifyIdentity.on("login", function() {
+              document.location.href = "/admin/";
+            });
+          }
+        });
+      }
+    </script>
+</body>
+</html>

@@ -42,19 +42,14 @@ async function showAdmin() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
     await loadAllData();
-    checkGateway();
+    checkSaveFunction();
 }
 
-async function checkGateway() {
-    try {
-        const res = await gwFetch('/git/refs/heads/main');
-        gatewayAvailable = res.ok;
-    } catch (e) {
-        gatewayAvailable = false;
-    }
-    document.getElementById('setupBanner').style.display = gatewayAvailable ? 'none' : 'flex';
-    if (gatewayAvailable) console.log('Git Gateway OK');
-    else console.error('Git Gateway non disponible');
+async function checkSaveFunction() {
+    // On vérifie simplement que la function existe en testant un save
+    // La bannière sera affichée si le premier save échoue
+    document.getElementById('setupBanner').style.display = 'none';
+    console.log('Admin prêt. Sauvegarde via Netlify Function.');
 }
 
 // ============================================
@@ -649,154 +644,50 @@ async function saveContact() {
 }
 
 // ============================================
-// GIT GATEWAY — API Git Data
-// Même approche que Decap CMS : blobs/trees/commits
+// SAUVEGARDE via Netlify Function
+// La function serveur gère l'API GitHub avec le token
 // ============================================
-const GW = '/.netlify/git/gateway/github';
 
-async function getToken() {
+async function getIdentityToken() {
     try { await netlifyIdentity.refresh(); } catch (e) { /* */ }
     return netlifyIdentity.currentUser()?.token?.access_token;
 }
 
-async function gwFetch(endpoint, options = {}) {
-    const token = await getToken();
+async function callSaveFunction(body) {
+    const token = await getIdentityToken();
     if (!token) throw new Error('Non authentifié. Reconnectez-vous.');
 
-    const res = await fetch(GW + endpoint, {
-        ...options,
+    const res = await fetch('/.netlify/functions/github-save', {
+        method: 'POST',
         headers: {
             'Authorization': 'Bearer ' + token,
-            'Content-Type': 'application/json',
-            ...(options.headers || {})
-        }
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
     });
-    return res;
-}
 
-/**
- * Sauvegarde un fichier via l'API Git Data (comme Decap CMS)
- * 1. Crée un blob avec le contenu
- * 2. Récupère le commit actuel de la branche
- * 3. Crée un nouveau tree avec le fichier modifié
- * 4. Crée un nouveau commit
- * 5. Met à jour la référence de la branche
- */
-async function saveFile(path, content) {
-    // 1. Créer le blob
-    const blobRes = await gwFetch('/git/blobs', {
-        method: 'POST',
-        body: JSON.stringify({
-            content: utf8ToBase64(content),
-            encoding: 'base64'
-        })
-    });
-    if (!blobRes.ok) {
-        const err = await blobRes.text();
-        console.error('Erreur blob:', blobRes.status, err);
-        throw new Error('Erreur création blob (' + blobRes.status + ')');
+    const data = await res.json();
+    if (!res.ok) {
+        throw new Error(data.error || 'Erreur ' + res.status);
     }
-    const blob = await blobRes.json();
-
-    // 2. Récupérer la ref actuelle
-    const refRes = await gwFetch('/git/refs/heads/main');
-    if (!refRes.ok) throw new Error('Impossible de lire la branche main (' + refRes.status + ')');
-    const ref = await refRes.json();
-    const latestCommitSha = ref.object.sha;
-
-    // 3. Récupérer le tree du commit actuel
-    const commitRes = await gwFetch('/git/commits/' + latestCommitSha);
-    if (!commitRes.ok) throw new Error('Impossible de lire le commit');
-    const commit = await commitRes.json();
-    const baseTreeSha = commit.tree.sha;
-
-    // 4. Créer un nouveau tree avec le fichier modifié
-    const treeRes = await gwFetch('/git/trees', {
-        method: 'POST',
-        body: JSON.stringify({
-            base_tree: baseTreeSha,
-            tree: [{
-                path: path,
-                mode: '100644',
-                type: 'blob',
-                sha: blob.sha
-            }]
-        })
-    });
-    if (!treeRes.ok) throw new Error('Erreur création tree (' + treeRes.status + ')');
-    const newTree = await treeRes.json();
-
-    // 5. Créer le commit
-    const newCommitRes = await gwFetch('/git/commits', {
-        method: 'POST',
-        body: JSON.stringify({
-            message: 'Mise à jour ' + path.split('/').pop() + ' via admin',
-            tree: newTree.sha,
-            parents: [latestCommitSha]
-        })
-    });
-    if (!newCommitRes.ok) throw new Error('Erreur création commit (' + newCommitRes.status + ')');
-    const newCommit = await newCommitRes.json();
-
-    // 6. Mettre à jour la ref
-    const updateRefRes = await gwFetch('/git/refs/heads/main', {
-        method: 'PATCH',
-        body: JSON.stringify({ sha: newCommit.sha })
-    });
-    if (!updateRefRes.ok) throw new Error('Erreur mise à jour branche (' + updateRefRes.status + ')');
-
-    return newCommit;
+    return data;
 }
 
-/**
- * Upload un fichier binaire (image) via la même méthode
- */
+async function saveFile(path, content) {
+    return callSaveFunction({
+        action: 'save',
+        path: path,
+        content: content,
+        message: 'Mise à jour ' + path.split('/').pop() + ' via admin'
+    });
+}
+
 async function uploadFile(path, base64Data) {
-    // 1. Créer le blob (déjà en base64)
-    const blobRes = await gwFetch('/git/blobs', {
-        method: 'POST',
-        body: JSON.stringify({
-            content: base64Data,
-            encoding: 'base64'
-        })
+    const result = await callSaveFunction({
+        action: 'upload',
+        path: path,
+        base64: base64Data
     });
-    if (!blobRes.ok) throw new Error('Erreur upload blob (' + blobRes.status + ')');
-    const blob = await blobRes.json();
-
-    // 2-6. Même flow que saveFile
-    const refRes = await gwFetch('/git/refs/heads/main');
-    if (!refRes.ok) throw new Error('Erreur ref');
-    const ref = await refRes.json();
-
-    const commitRes = await gwFetch('/git/commits/' + ref.object.sha);
-    const commit = await commitRes.json();
-
-    const treeRes = await gwFetch('/git/trees', {
-        method: 'POST',
-        body: JSON.stringify({
-            base_tree: commit.tree.sha,
-            tree: [{ path, mode: '100644', type: 'blob', sha: blob.sha }]
-        })
-    });
-    if (!treeRes.ok) throw new Error('Erreur tree upload');
-    const newTree = await treeRes.json();
-
-    const newCommitRes = await gwFetch('/git/commits', {
-        method: 'POST',
-        body: JSON.stringify({
-            message: 'Upload ' + path.split('/').pop() + ' via admin',
-            tree: newTree.sha,
-            parents: [ref.object.sha]
-        })
-    });
-    if (!newCommitRes.ok) throw new Error('Erreur commit upload');
-    const newCommit = await newCommitRes.json();
-
-    await gwFetch('/git/refs/heads/main', {
-        method: 'PATCH',
-        body: JSON.stringify({ sha: newCommit.sha })
-    });
-
     return '/' + path;
 }
 

@@ -1,7 +1,7 @@
 [build]
   publish = "."
+  functions = "netlify/functions"
 
-# Netlify Identity (nécessaire pour Decap CMS)
 [build.environment]
   NODE_VERSION = "18"
 

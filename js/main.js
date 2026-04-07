@@ -164,16 +164,36 @@ function applySiteContent() {
             }
         }
 
-        // Logo
-        if (c.hero.logo) {
-            const logoText = document.querySelector('.header__logo-text');
-            if (logoText) {
-                const logoImg = document.createElement('img');
-                logoImg.src = c.hero.logo;
-                logoImg.alt = c.hero.title;
-                logoImg.className = 'header__logo-img';
-                logoImg.style.height = '40px';
-                logoText.parentNode.insertBefore(logoImg, logoText);
+        // Header display (text, logo, both)
+        const headerDisplay = c.hero.headerDisplay || 'text';
+        const logoText = document.querySelector('.header__logo-text');
+        if (logoText && c.hero.logo) {
+            if (headerDisplay === 'logo' || headerDisplay === 'both') {
+                // Ajouter le logo si pas déjà present
+                if (!document.querySelector('.header__logo-img')) {
+                    const logoImg = document.createElement('img');
+                    logoImg.src = c.hero.logo;
+                    logoImg.alt = c.hero.title;
+                    logoImg.className = 'header__logo-img';
+                    logoImg.style.height = '40px';
+                    logoText.parentNode.insertBefore(logoImg, logoText);
+                }
+            }
+            if (headerDisplay === 'logo') {
+                logoText.style.display = 'none';
+            }
+        }
+
+        // Sidebar display (text, logo, both)
+        const sidebarDisplay = c.hero.sidebarDisplay || 'text';
+        const navLogo = document.querySelector('.nav__logo');
+        if (navLogo) {
+            if (sidebarDisplay === 'text') {
+                navLogo.textContent = c.hero.title;
+            } else if (sidebarDisplay === 'logo' && c.hero.logo) {
+                navLogo.innerHTML = `<img src="${c.hero.logo}" alt="${c.hero.title}" style="height:50px;">`;
+            } else if (sidebarDisplay === 'both' && c.hero.logo) {
+                navLogo.innerHTML = `<img src="${c.hero.logo}" alt="${c.hero.title}" style="height:40px;margin-bottom:8px;"><br>${c.hero.title}`;
             }
         }
     }
@@ -288,12 +308,13 @@ function applySiteContent() {
         }
     }
 
-    // Logo header + sidebar
+    // Logo header text (si pas géré par headerDisplay)
     if (c.hero && c.hero.title) {
-        const logoText = document.querySelector('.header__logo-text');
-        if (logoText) logoText.textContent = c.hero.title;
-        const navLogo = document.querySelector('.nav__logo');
-        if (navLogo) navLogo.textContent = c.hero.title;
+        const headerDisplay = c.hero.headerDisplay || 'text';
+        if (headerDisplay !== 'logo') {
+            const logoText = document.querySelector('.header__logo-text');
+            if (logoText) logoText.textContent = c.hero.title;
+        }
     }
 }
 

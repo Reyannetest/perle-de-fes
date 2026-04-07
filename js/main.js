@@ -155,6 +155,27 @@ function applySiteContent() {
         if (heroSubtitle) heroSubtitle.textContent = c.hero.subtitle;
         if (heroTagline) heroTagline.textContent = c.hero.tagline;
         if (heroCta) heroCta.textContent = c.hero.cta;
+
+        // Image de fond hero
+        if (c.hero.backgroundImage) {
+            const heroSection = document.querySelector('.hero');
+            if (heroSection) {
+                heroSection.style.backgroundImage = `url('${c.hero.backgroundImage}')`;
+            }
+        }
+
+        // Logo
+        if (c.hero.logo) {
+            const logoText = document.querySelector('.header__logo-text');
+            if (logoText) {
+                const logoImg = document.createElement('img');
+                logoImg.src = c.hero.logo;
+                logoImg.alt = c.hero.title;
+                logoImg.className = 'header__logo-img';
+                logoImg.style.height = '40px';
+                logoText.parentNode.insertBefore(logoImg, logoText);
+            }
+        }
     }
 
     // Présentation

@@ -288,10 +288,12 @@ function applySiteContent() {
         }
     }
 
-    // Logo header
+    // Logo header + sidebar
     if (c.hero && c.hero.title) {
         const logoText = document.querySelector('.header__logo-text');
         if (logoText) logoText.textContent = c.hero.title;
+        const navLogo = document.querySelector('.nav__logo');
+        if (navLogo) navLogo.textContent = c.hero.title;
     }
 }
 

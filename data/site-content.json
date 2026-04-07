@@ -8,7 +8,11 @@
   "presentation": {
     "title": "Le Maroc dans chaque détail",
     "text": "Perle de Fès est née de mon attachement profond à la culture marocaine et ses traditions. Chaque création est pensée avec soin pour célébrer vos plus beaux moments avec élégance et authenticité.",
-    "features": ["Fait main", "Avec amour", "Personnalisable"]
+    "features": [
+      "Fait main",
+      "Avec amour",
+      "Personnalisable"
+    ]
   },
   "products": {
     "title": "Nos Créations",
@@ -37,6 +41,6 @@
   "footer": {
     "brand": "Perle de Fès",
     "tagline": "Cadeaux & créations marocaines personnalisées",
-    "copyright": "Tous droits réservés 2025"
+    "copyright": "Tous droits réservés 2026"
   }
 }

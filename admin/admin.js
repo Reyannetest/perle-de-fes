@@ -46,13 +46,15 @@ async function showAdmin() {
 }
 
 async function checkGateway() {
-    const base = await detectGateway();
-    gatewayAvailable = !!base;
-    if (!gatewayAvailable) {
-        document.getElementById('setupBanner').style.display = 'flex';
-    } else {
-        document.getElementById('setupBanner').style.display = 'none';
+    try {
+        const res = await gwFetch('/git/refs/heads/main');
+        gatewayAvailable = res.ok;
+    } catch (e) {
+        gatewayAvailable = false;
     }
+    document.getElementById('setupBanner').style.display = gatewayAvailable ? 'none' : 'flex';
+    if (gatewayAvailable) console.log('Git Gateway OK');
+    else console.error('Git Gateway non disponible');
 }
 
 // ============================================
@@ -647,129 +649,154 @@ async function saveContact() {
 }
 
 // ============================================
-// GIT GATEWAY / SAUVEGARDE
+// GIT GATEWAY — API Git Data
+// Même approche que Decap CMS : blobs/trees/commits
 // ============================================
-
-// Détection automatique du bon endpoint Git Gateway
-let gatewayBase = null;
+const GW = '/.netlify/git/gateway/github';
 
 async function getToken() {
-    try {
-        await netlifyIdentity.refresh();
-    } catch (e) { /* ignore */ }
+    try { await netlifyIdentity.refresh(); } catch (e) { /* */ }
     return netlifyIdentity.currentUser()?.token?.access_token;
 }
 
-async function detectGateway() {
-    if (gatewayBase) return gatewayBase;
-
-    const token = await getToken();
-    if (!token) return null;
-
-    // Essayer les différents chemins possibles
-    const paths = [
-        '/.netlify/git/gateway/github',
-        '/.netlify/git/gateway',
-    ];
-
-    for (const base of paths) {
-        try {
-            const res = await fetch(base + '/contents/data/products.json?ref=main', {
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
-            if (res.ok || res.status === 404) {
-                // 404 = chemin valide mais fichier pas trouvé (normal pour nouveaux fichiers)
-                // On vérifie que c'est pas un 404 HTML de Netlify
-                const text = await res.text();
-                if (res.ok || !text.includes('<!DOCTYPE')) {
-                    gatewayBase = base;
-                    console.log('Git Gateway détecté:', base);
-                    return gatewayBase;
-                }
-            }
-        } catch (e) {
-            continue;
-        }
-    }
-
-    console.error('Aucun endpoint Git Gateway trouvé');
-    return null;
-}
-
-async function apiGet(path) {
-    const base = await detectGateway();
-    if (!base) throw new Error('Git Gateway non disponible. Vérifiez la configuration Netlify.');
-
-    const token = await getToken();
-    const res = await fetch(base + '/contents/' + path + '?ref=main', {
-        headers: { 'Authorization': 'Bearer ' + token }
-    });
-    return res;
-}
-
-async function apiPut(path, body) {
-    const base = await detectGateway();
-    if (!base) throw new Error('Git Gateway non disponible. Vérifiez la configuration Netlify.');
-
-    const token = await getToken();
-    const res = await fetch(base + '/contents/' + path, {
-        method: 'PUT',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    });
-    return res;
-}
-
-async function saveFile(path, content) {
+async function gwFetch(endpoint, options = {}) {
     const token = await getToken();
     if (!token) throw new Error('Non authentifié. Reconnectez-vous.');
 
-    // Récupérer le SHA du fichier existant
-    let sha = null;
-    try {
-        const getRes = await apiGet(path);
-        if (getRes.ok) {
-            const data = await getRes.json();
-            sha = data.sha;
+    const res = await fetch(GW + endpoint, {
+        ...options,
+        headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json',
+            ...(options.headers || {})
         }
-    } catch (e) {
-        // Si l'erreur est sur le gateway, on la propage
-        if (e.message.includes('Git Gateway')) throw e;
-        console.warn('Impossible de récupérer le SHA:', e);
-    }
-
-    const body = {
-        message: 'Mise à jour ' + path.split('/').pop() + ' via admin',
-        content: utf8ToBase64(content),
-        branch: 'main'
-    };
-    if (sha) body.sha = sha;
-
-    const putRes = await apiPut(path, body);
-
-    if (!putRes.ok) {
-        const errText = await putRes.text();
-        console.error('Erreur sauvegarde:', putRes.status, errText);
-        throw new Error('Erreur ' + putRes.status + '. Vérifiez que Git Gateway est activé dans Netlify.');
-    }
-    return putRes.json();
+    });
+    return res;
 }
 
+/**
+ * Sauvegarde un fichier via l'API Git Data (comme Decap CMS)
+ * 1. Crée un blob avec le contenu
+ * 2. Récupère le commit actuel de la branche
+ * 3. Crée un nouveau tree avec le fichier modifié
+ * 4. Crée un nouveau commit
+ * 5. Met à jour la référence de la branche
+ */
+async function saveFile(path, content) {
+    // 1. Créer le blob
+    const blobRes = await gwFetch('/git/blobs', {
+        method: 'POST',
+        body: JSON.stringify({
+            content: utf8ToBase64(content),
+            encoding: 'base64'
+        })
+    });
+    if (!blobRes.ok) {
+        const err = await blobRes.text();
+        console.error('Erreur blob:', blobRes.status, err);
+        throw new Error('Erreur création blob (' + blobRes.status + ')');
+    }
+    const blob = await blobRes.json();
+
+    // 2. Récupérer la ref actuelle
+    const refRes = await gwFetch('/git/refs/heads/main');
+    if (!refRes.ok) throw new Error('Impossible de lire la branche main (' + refRes.status + ')');
+    const ref = await refRes.json();
+    const latestCommitSha = ref.object.sha;
+
+    // 3. Récupérer le tree du commit actuel
+    const commitRes = await gwFetch('/git/commits/' + latestCommitSha);
+    if (!commitRes.ok) throw new Error('Impossible de lire le commit');
+    const commit = await commitRes.json();
+    const baseTreeSha = commit.tree.sha;
+
+    // 4. Créer un nouveau tree avec le fichier modifié
+    const treeRes = await gwFetch('/git/trees', {
+        method: 'POST',
+        body: JSON.stringify({
+            base_tree: baseTreeSha,
+            tree: [{
+                path: path,
+                mode: '100644',
+                type: 'blob',
+                sha: blob.sha
+            }]
+        })
+    });
+    if (!treeRes.ok) throw new Error('Erreur création tree (' + treeRes.status + ')');
+    const newTree = await treeRes.json();
+
+    // 5. Créer le commit
+    const newCommitRes = await gwFetch('/git/commits', {
+        method: 'POST',
+        body: JSON.stringify({
+            message: 'Mise à jour ' + path.split('/').pop() + ' via admin',
+            tree: newTree.sha,
+            parents: [latestCommitSha]
+        })
+    });
+    if (!newCommitRes.ok) throw new Error('Erreur création commit (' + newCommitRes.status + ')');
+    const newCommit = await newCommitRes.json();
+
+    // 6. Mettre à jour la ref
+    const updateRefRes = await gwFetch('/git/refs/heads/main', {
+        method: 'PATCH',
+        body: JSON.stringify({ sha: newCommit.sha })
+    });
+    if (!updateRefRes.ok) throw new Error('Erreur mise à jour branche (' + updateRefRes.status + ')');
+
+    return newCommit;
+}
+
+/**
+ * Upload un fichier binaire (image) via la même méthode
+ */
 async function uploadFile(path, base64Data) {
-    const token = await getToken();
-    if (!token) throw new Error('Non authentifié.');
+    // 1. Créer le blob (déjà en base64)
+    const blobRes = await gwFetch('/git/blobs', {
+        method: 'POST',
+        body: JSON.stringify({
+            content: base64Data,
+            encoding: 'base64'
+        })
+    });
+    if (!blobRes.ok) throw new Error('Erreur upload blob (' + blobRes.status + ')');
+    const blob = await blobRes.json();
 
-    const body = {
-        message: 'Upload ' + path.split('/').pop() + ' via admin',
-        content: base64Data,
-        branch: 'main'
-    };
+    // 2-6. Même flow que saveFile
+    const refRes = await gwFetch('/git/refs/heads/main');
+    if (!refRes.ok) throw new Error('Erreur ref');
+    const ref = await refRes.json();
 
-    const putRes = await apiPut(path, body);
-    if (!putRes.ok) throw new Error('Erreur upload: ' + putRes.status);
+    const commitRes = await gwFetch('/git/commits/' + ref.object.sha);
+    const commit = await commitRes.json();
+
+    const treeRes = await gwFetch('/git/trees', {
+        method: 'POST',
+        body: JSON.stringify({
+            base_tree: commit.tree.sha,
+            tree: [{ path, mode: '100644', type: 'blob', sha: blob.sha }]
+        })
+    });
+    if (!treeRes.ok) throw new Error('Erreur tree upload');
+    const newTree = await treeRes.json();
+
+    const newCommitRes = await gwFetch('/git/commits', {
+        method: 'POST',
+        body: JSON.stringify({
+            message: 'Upload ' + path.split('/').pop() + ' via admin',
+            tree: newTree.sha,
+            parents: [ref.object.sha]
+        })
+    });
+    if (!newCommitRes.ok) throw new Error('Erreur commit upload');
+    const newCommit = await newCommitRes.json();
+
+    await gwFetch('/git/refs/heads/main', {
+        method: 'PATCH',
+        body: JSON.stringify({ sha: newCommit.sha })
+    });
+
     return '/' + path;
 }
 

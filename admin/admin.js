@@ -46,17 +46,12 @@ async function showAdmin() {
 }
 
 async function checkGateway() {
-    try {
-        const token = await getToken();
-        const res = await fetch('/.netlify/git/gateway/github/contents/data/products.json', {
-            headers: { 'Authorization': 'Bearer ' + token }
-        });
-        gatewayAvailable = res.ok;
-    } catch (e) {
-        gatewayAvailable = false;
-    }
+    const base = await detectGateway();
+    gatewayAvailable = !!base;
     if (!gatewayAvailable) {
         document.getElementById('setupBanner').style.display = 'flex';
+    } else {
+        document.getElementById('setupBanner').style.display = 'none';
     }
 }
 
@@ -128,6 +123,10 @@ function renderProductsList() {
             </div>
         </div>
     `).join('');
+}
+
+function editProduct(index) {
+    openProductModal(index);
 }
 
 // ============================================
@@ -650,11 +649,78 @@ async function saveContact() {
 // ============================================
 // GIT GATEWAY / SAUVEGARDE
 // ============================================
+
+// Détection automatique du bon endpoint Git Gateway
+let gatewayBase = null;
+
 async function getToken() {
     try {
         await netlifyIdentity.refresh();
     } catch (e) { /* ignore */ }
     return netlifyIdentity.currentUser()?.token?.access_token;
+}
+
+async function detectGateway() {
+    if (gatewayBase) return gatewayBase;
+
+    const token = await getToken();
+    if (!token) return null;
+
+    // Essayer les différents chemins possibles
+    const paths = [
+        '/.netlify/git/gateway/github',
+        '/.netlify/git/gateway',
+    ];
+
+    for (const base of paths) {
+        try {
+            const res = await fetch(base + '/contents/data/products.json?ref=main', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (res.ok || res.status === 404) {
+                // 404 = chemin valide mais fichier pas trouvé (normal pour nouveaux fichiers)
+                // On vérifie que c'est pas un 404 HTML de Netlify
+                const text = await res.text();
+                if (res.ok || !text.includes('<!DOCTYPE')) {
+                    gatewayBase = base;
+                    console.log('Git Gateway détecté:', base);
+                    return gatewayBase;
+                }
+            }
+        } catch (e) {
+            continue;
+        }
+    }
+
+    console.error('Aucun endpoint Git Gateway trouvé');
+    return null;
+}
+
+async function apiGet(path) {
+    const base = await detectGateway();
+    if (!base) throw new Error('Git Gateway non disponible. Vérifiez la configuration Netlify.');
+
+    const token = await getToken();
+    const res = await fetch(base + '/contents/' + path + '?ref=main', {
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    return res;
+}
+
+async function apiPut(path, body) {
+    const base = await detectGateway();
+    if (!base) throw new Error('Git Gateway non disponible. Vérifiez la configuration Netlify.');
+
+    const token = await getToken();
+    const res = await fetch(base + '/contents/' + path, {
+        method: 'PUT',
+        headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+    });
+    return res;
 }
 
 async function saveFile(path, content) {
@@ -664,22 +730,15 @@ async function saveFile(path, content) {
     // Récupérer le SHA du fichier existant
     let sha = null;
     try {
-        const getRes = await fetch('/.netlify/git/gateway/github/contents/' + path, {
-            headers: { 'Authorization': 'Bearer ' + token }
-        });
+        const getRes = await apiGet(path);
         if (getRes.ok) {
             const data = await getRes.json();
             sha = data.sha;
-        } else if (getRes.status === 404) {
-            // Fichier n'existe pas encore, c'est OK pour la création
-            // Mais vérifions si c'est un problème de Gateway
-            if (!gatewayAvailable) {
-                throw new Error('Git Gateway non configuré. Activez Identity + Git Gateway dans les paramètres Netlify.');
-            }
         }
     } catch (e) {
+        // Si l'erreur est sur le gateway, on la propage
         if (e.message.includes('Git Gateway')) throw e;
-        throw new Error('Git Gateway non disponible. Vérifiez la configuration Netlify (Identity + Git Gateway).');
+        console.warn('Impossible de récupérer le SHA:', e);
     }
 
     const body = {
@@ -689,18 +748,12 @@ async function saveFile(path, content) {
     };
     if (sha) body.sha = sha;
 
-    const putRes = await fetch('/.netlify/git/gateway/github/contents/' + path, {
-        method: 'PUT',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    });
+    const putRes = await apiPut(path, body);
 
     if (!putRes.ok) {
         const errText = await putRes.text();
-        throw new Error('Erreur ' + putRes.status + ' : ' + errText.substring(0, 200));
+        console.error('Erreur sauvegarde:', putRes.status, errText);
+        throw new Error('Erreur ' + putRes.status + '. Vérifiez que Git Gateway est activé dans Netlify.');
     }
     return putRes.json();
 }
@@ -715,16 +768,8 @@ async function uploadFile(path, base64Data) {
         branch: 'main'
     };
 
-    const res = await fetch('/.netlify/git/gateway/github/contents/' + path, {
-        method: 'PUT',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    });
-
-    if (!res.ok) throw new Error('Erreur upload: ' + res.status);
+    const putRes = await apiPut(path, body);
+    if (!putRes.ok) throw new Error('Erreur upload: ' + putRes.status);
     return '/' + path;
 }
 

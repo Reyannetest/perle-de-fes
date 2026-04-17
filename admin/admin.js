@@ -5,6 +5,7 @@
 let currentUser = null;
 let productsData = { items: [] };
 let siteContent = {};
+let siteDesign = {};
 let editingProductIndex = -1;
 let pendingImageBase64 = null;
 let pendingImageName = null;
@@ -57,19 +58,58 @@ async function checkSaveFunction() {
 // ============================================
 async function loadAllData() {
     try {
-        const [pRes, cRes] = await Promise.all([
+        const [pRes, cRes, dRes] = await Promise.all([
             fetch('/data/products.json'),
-            fetch('/data/site-content.json')
+            fetch('/data/site-content.json'),
+            fetch('/data/site-design.json')
         ]);
         productsData = await pRes.json();
         siteContent = await cRes.json();
+        siteDesign = await dRes.json();
     } catch (e) {
         console.error('Erreur chargement:', e);
+        // Defaults si site-design.json n'existe pas encore
+        if (!siteDesign || Object.keys(siteDesign).length === 0) {
+            siteDesign = getDefaultDesign();
+        }
     }
     renderProductsList();
+    renderDesignForm();
+    renderOrnamentsForm();
     renderAppearanceForm();
     renderTextsForm();
     renderContactForm();
+}
+
+function getDefaultDesign() {
+    return {
+        colors: {
+            primary: "#C9A84C",
+            primaryLight: "#E8D5A3",
+            primaryDark: "#8B6914",
+            background: "#FAF6F0",
+            backgroundSection: "#F0E8D8",
+            text: "#2C2420"
+        },
+        textures: {
+            zellige: { enabled: true, opacity: 0.12 },
+            presentation: { enabled: true, opacity: 0.10 },
+            events: { enabled: true, opacity: 0.12 },
+            testimonials: { enabled: true, opacity: 0.10 }
+        },
+        calligraphy: {
+            hero: { text: "\u0628\u064a\u0631\u0644 \u062f\u0648 \u0641\u0627\u0633", enabled: true, opacity: 0.06 },
+            presentation: { text: "\u0627\u0644\u062c\u0645\u0627\u0644", enabled: true, opacity: 0.08 }
+        },
+        ornaments: {
+            dividers: { style: "simple", opacity: 0.6 },
+            stars: { showOnTitles: true, opacity: 0.85 }
+        },
+        productCards: {
+            backgroundColor: "#FFFFFF",
+            hoverBorderColor: "#C9A84C"
+        }
+    };
 }
 
 // ============================================
@@ -734,3 +774,308 @@ function showToast(text, type) {
 
 function showLoader() { document.getElementById('loader').style.display = 'flex'; }
 function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+
+// ============================================
+// DESIGN - COULEURS, TEXTURES, CALLIGRAPHIE
+// ============================================
+function renderDesignForm() {
+    const d = siteDesign || getDefaultDesign();
+    const c = d.colors || {};
+    const t = d.textures || {};
+    const cal = d.calligraphy || {};
+    const pc = d.productCards || {};
+
+    document.getElementById('designForm').innerHTML = `
+        ${textCard('Palette de couleurs', `
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="color_primary">COULEUR PRINCIPALE (OR)</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="color_primary" value="${c.primary || '#C9A84C'}">
+                        <input type="text" id="color_primary_hex" value="${c.primary || '#C9A84C'}" maxlength="7">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="color_primaryLight">OR CLAIR</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="color_primaryLight" value="${c.primaryLight || '#E8D5A3'}">
+                        <input type="text" id="color_primaryLight_hex" value="${c.primaryLight || '#E8D5A3'}" maxlength="7">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="color_background">FOND PRINCIPAL</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="color_background" value="${c.background || '#FAF6F0'}">
+                        <input type="text" id="color_background_hex" value="${c.background || '#FAF6F0'}" maxlength="7">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="color_backgroundSection">FOND SECTIONS</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="color_backgroundSection" value="${c.backgroundSection || '#F0E8D8'}">
+                        <input type="text" id="color_backgroundSection_hex" value="${c.backgroundSection || '#F0E8D8'}" maxlength="7">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="color_text">COULEUR TEXTE</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="color_text" value="${c.text || '#2C2420'}">
+                        <input type="text" id="color_text_hex" value="${c.text || '#2C2420'}" maxlength="7">
+                    </div>
+                </div>
+            </div>
+        `)}
+
+        ${textCard('Textures (motifs zellige)', `
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="texture_zellige_enabled" ${t.zellige?.enabled !== false ? 'checked' : ''}>
+                    <span>Activer texture Hero</span>
+                </label>
+                <div class="slider-group">
+                    <label>Opacite: <span id="texture_zellige_opacity_val">${Math.round((t.zellige?.opacity || 0.12) * 100)}%</span></label>
+                    <input type="range" id="texture_zellige_opacity" min="0" max="30" value="${Math.round((t.zellige?.opacity || 0.12) * 100)}" oninput="document.getElementById('texture_zellige_opacity_val').textContent = this.value + '%'">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="texture_presentation_enabled" ${t.presentation?.enabled !== false ? 'checked' : ''}>
+                    <span>Activer texture Presentation</span>
+                </label>
+                <div class="slider-group">
+                    <label>Opacite: <span id="texture_presentation_opacity_val">${Math.round((t.presentation?.opacity || 0.10) * 100)}%</span></label>
+                    <input type="range" id="texture_presentation_opacity" min="0" max="30" value="${Math.round((t.presentation?.opacity || 0.10) * 100)}" oninput="document.getElementById('texture_presentation_opacity_val').textContent = this.value + '%'">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="texture_events_enabled" ${t.events?.enabled !== false ? 'checked' : ''}>
+                    <span>Activer texture Evenements</span>
+                </label>
+                <div class="slider-group">
+                    <label>Opacite: <span id="texture_events_opacity_val">${Math.round((t.events?.opacity || 0.12) * 100)}%</span></label>
+                    <input type="range" id="texture_events_opacity" min="0" max="30" value="${Math.round((t.events?.opacity || 0.12) * 100)}" oninput="document.getElementById('texture_events_opacity_val').textContent = this.value + '%'">
+                </div>
+            </div>
+        `)}
+
+        ${textCard('Calligraphie arabe', `
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="calligraphy_hero_enabled" ${cal.hero?.enabled !== false ? 'checked' : ''}>
+                    <span>Calligraphie dans le Hero</span>
+                </label>
+                <input type="text" id="calligraphy_hero_text" value="${esc(cal.hero?.text || '\u0628\u064a\u0631\u0644 \u062f\u0648 \u0641\u0627\u0633')}" placeholder="Texte arabe" dir="rtl" style="text-align:right; font-family:'Amiri',serif; font-size:18px;">
+                <div class="slider-group">
+                    <label>Opacite: <span id="calligraphy_hero_opacity_val">${Math.round((cal.hero?.opacity || 0.06) * 100)}%</span></label>
+                    <input type="range" id="calligraphy_hero_opacity" min="1" max="20" value="${Math.round((cal.hero?.opacity || 0.06) * 100)}" oninput="document.getElementById('calligraphy_hero_opacity_val').textContent = this.value + '%'">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="calligraphy_presentation_enabled" ${cal.presentation?.enabled !== false ? 'checked' : ''}>
+                    <span>Calligraphie dans Presentation</span>
+                </label>
+                <input type="text" id="calligraphy_presentation_text" value="${esc(cal.presentation?.text || '\u0627\u0644\u062c\u0645\u0627\u0644')}" placeholder="Texte arabe" dir="rtl" style="text-align:right; font-family:'Amiri',serif; font-size:18px;">
+                <div class="slider-group">
+                    <label>Opacite: <span id="calligraphy_presentation_opacity_val">${Math.round((cal.presentation?.opacity || 0.08) * 100)}%</span></label>
+                    <input type="range" id="calligraphy_presentation_opacity" min="1" max="20" value="${Math.round((cal.presentation?.opacity || 0.08) * 100)}" oninput="document.getElementById('calligraphy_presentation_opacity_val').textContent = this.value + '%'">
+                </div>
+            </div>
+        `)}
+
+        ${textCard('Cartes produits', `
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="card_background">FOND CARTE</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="card_background" value="${pc.backgroundColor || '#FFFFFF'}">
+                        <input type="text" id="card_background_hex" value="${pc.backgroundColor || '#FFFFFF'}" maxlength="7">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="card_hoverBorder">BORDURE AU SURVOL</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="card_hoverBorder" value="${pc.hoverBorderColor || '#C9A84C'}">
+                        <input type="text" id="card_hoverBorder_hex" value="${pc.hoverBorderColor || '#C9A84C'}" maxlength="7">
+                    </div>
+                </div>
+            </div>
+        `)}
+    `;
+
+    // Sync color pickers with hex inputs
+    syncColorInputs();
+    document.getElementById('saveDesignBtn').addEventListener('click', saveDesign);
+}
+
+function syncColorInputs() {
+    const colorFields = ['color_primary', 'color_primaryLight', 'color_background', 'color_backgroundSection', 'color_text', 'card_background', 'card_hoverBorder'];
+    colorFields.forEach(field => {
+        const picker = document.getElementById(field);
+        const hex = document.getElementById(field + '_hex');
+        if (picker && hex) {
+            picker.addEventListener('input', () => { hex.value = picker.value; });
+            hex.addEventListener('input', () => { if (/^#[0-9A-Fa-f]{6}$/.test(hex.value)) picker.value = hex.value; });
+        }
+    });
+}
+
+async function saveDesign() {
+    showLoader();
+
+    siteDesign.colors = {
+        primary: val('color_primary_hex') || '#C9A84C',
+        primaryLight: val('color_primaryLight_hex') || '#E8D5A3',
+        primaryDark: siteDesign.colors?.primaryDark || '#8B6914',
+        background: val('color_background_hex') || '#FAF6F0',
+        backgroundSection: val('color_backgroundSection_hex') || '#F0E8D8',
+        text: val('color_text_hex') || '#2C2420'
+    };
+
+    siteDesign.textures = {
+        zellige: {
+            enabled: document.getElementById('texture_zellige_enabled').checked,
+            opacity: parseInt(document.getElementById('texture_zellige_opacity').value) / 100
+        },
+        presentation: {
+            enabled: document.getElementById('texture_presentation_enabled').checked,
+            opacity: parseInt(document.getElementById('texture_presentation_opacity').value) / 100
+        },
+        events: {
+            enabled: document.getElementById('texture_events_enabled').checked,
+            opacity: parseInt(document.getElementById('texture_events_opacity').value) / 100
+        }
+    };
+
+    siteDesign.calligraphy = {
+        hero: {
+            text: val('calligraphy_hero_text'),
+            enabled: document.getElementById('calligraphy_hero_enabled').checked,
+            opacity: parseInt(document.getElementById('calligraphy_hero_opacity').value) / 100
+        },
+        presentation: {
+            text: val('calligraphy_presentation_text'),
+            enabled: document.getElementById('calligraphy_presentation_enabled').checked,
+            opacity: parseInt(document.getElementById('calligraphy_presentation_opacity').value) / 100
+        }
+    };
+
+    siteDesign.productCards = {
+        backgroundColor: val('card_background_hex') || '#FFFFFF',
+        hoverBorderColor: val('card_hoverBorder_hex') || '#C9A84C'
+    };
+
+    try {
+        await saveFile('data/site-design.json', JSON.stringify(siteDesign, null, 2));
+        showToast('Design enregistre !');
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+    hideLoader();
+}
+
+// ============================================
+// ORNEMENTS - SEPARATEURS, ETOILES
+// ============================================
+function renderOrnamentsForm() {
+    const d = siteDesign || getDefaultDesign();
+    const orn = d.ornaments || {};
+    const div = orn.dividers || {};
+    const stars = orn.stars || {};
+
+    document.getElementById('ornamentsForm').innerHTML = `
+        ${textCard('Separateurs entre sections', `
+            <div class="form-group">
+                <label>STYLE DE SEPARATEUR</label>
+                <div class="radio-group">
+                    <label class="radio-option ${div.style === 'simple' || !div.style ? 'selected' : ''}" onclick="selectRadio(this, 'divider_style')">
+                        <input type="radio" name="divider_style" value="simple" ${div.style === 'simple' || !div.style ? 'checked' : ''}>
+                        Simple (etoile marocaine)
+                    </label>
+                    <label class="radio-option ${div.style === 'elaborate' ? 'selected' : ''}" onclick="selectRadio(this, 'divider_style')">
+                        <input type="radio" name="divider_style" value="elaborate" ${div.style === 'elaborate' ? 'checked' : ''}>
+                        Elabore (arc + motifs)
+                    </label>
+                    <label class="radio-option ${div.style === 'minimal' ? 'selected' : ''}" onclick="selectRadio(this, 'divider_style')">
+                        <input type="radio" name="divider_style" value="minimal" ${div.style === 'minimal' ? 'checked' : ''}>
+                        Minimal (ligne simple)
+                    </label>
+                </div>
+            </div>
+            <div class="slider-group">
+                <label>Opacite: <span id="divider_opacity_val">${Math.round((div.opacity || 0.6) * 100)}%</span></label>
+                <input type="range" id="divider_opacity" min="20" max="100" value="${Math.round((div.opacity || 0.6) * 100)}" oninput="document.getElementById('divider_opacity_val').textContent = this.value + '%'">
+            </div>
+        `)}
+
+        ${textCard('Etoiles marocaines', `
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="stars_showOnTitles" ${stars.showOnTitles !== false ? 'checked' : ''}>
+                    <span>Afficher etoile au-dessus des titres de section</span>
+                </label>
+            </div>
+            <div class="slider-group">
+                <label>Opacite des etoiles: <span id="stars_opacity_val">${Math.round((stars.opacity || 0.85) * 100)}%</span></label>
+                <input type="range" id="stars_opacity" min="30" max="100" value="${Math.round((stars.opacity || 0.85) * 100)}" oninput="document.getElementById('stars_opacity_val').textContent = this.value + '%'">
+            </div>
+            <div class="form-group">
+                <label>APERCU</label>
+                <div style="display:flex; gap:20px; justify-content:center; padding:20px; background:var(--bg-section); border-radius:8px;">
+                    <svg viewBox="0 0 100 100" width="50" height="50"><g fill="var(--gold)"><rect x="25" y="25" width="50" height="50" transform="rotate(0 50 50)"/><rect x="25" y="25" width="50" height="50" transform="rotate(45 50 50)"/><circle cx="50" cy="50" r="12"/></g></svg>
+                    <svg viewBox="0 0 100 100" width="40" height="40"><g fill="var(--gold)" opacity="0.7"><rect x="25" y="25" width="50" height="50" transform="rotate(0 50 50)"/><rect x="25" y="25" width="50" height="50" transform="rotate(45 50 50)"/></g></svg>
+                    <svg viewBox="0 0 100 100" width="30" height="30"><g fill="var(--gold)" opacity="0.5"><rect x="25" y="25" width="50" height="50" transform="rotate(0 50 50)"/><rect x="25" y="25" width="50" height="50" transform="rotate(45 50 50)"/></g></svg>
+                </div>
+            </div>
+        `)}
+
+        ${textCard('Lanternes decoratives', `
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="lanterns_hero" ${d.ornaments?.lanterns?.hero !== false ? 'checked' : ''}>
+                    <span>Lanternes dans le Hero</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="lanterns_footer" ${d.ornaments?.lanterns?.footer !== false ? 'checked' : ''}>
+                    <span>Lanternes dans le Footer</span>
+                </label>
+            </div>
+        `)}
+    `;
+
+    document.getElementById('saveOrnamentsBtn').addEventListener('click', saveOrnaments);
+}
+
+async function saveOrnaments() {
+    showLoader();
+
+    siteDesign.ornaments = {
+        dividers: {
+            style: document.querySelector('input[name="divider_style"]:checked')?.value || 'simple',
+            opacity: parseInt(document.getElementById('divider_opacity').value) / 100
+        },
+        stars: {
+            showOnTitles: document.getElementById('stars_showOnTitles').checked,
+            opacity: parseInt(document.getElementById('stars_opacity').value) / 100
+        },
+        lanterns: {
+            hero: document.getElementById('lanterns_hero').checked,
+            footer: document.getElementById('lanterns_footer').checked
+        }
+    };
+
+    try {
+        await saveFile('data/site-design.json', JSON.stringify(siteDesign, null, 2));
+        showToast('Ornements enregistres !');
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+    hideLoader();
+}

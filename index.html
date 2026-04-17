@@ -15,7 +15,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <!-- Netlify Identity (pour admin CMS) -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
@@ -28,6 +28,27 @@
 </head>
 <body>
     <!-- ============================================
+         BANDEAU PROMOTIONNEL DEFILANT
+    ============================================ -->
+    <div class="promo-banner">
+        <div class="promo-banner__track">
+            <span>Livraison France entière — Commandes personnalisées — Délai 2 semaines</span>
+            <span>Livraison France entière — Créations artisanales — Sur mesure</span>
+            <span>Livraison France entière — Commandes personnalisées — Délai 2 semaines</span>
+            <span>Livraison France entière — Créations artisanales — Sur mesure</span>
+        </div>
+    </div>
+
+    <!-- ============================================
+         CUSTOM CURSOR (bonus)
+    ============================================ -->
+    <div class="custom-cursor" id="customCursor">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/>
+        </svg>
+    </div>
+
+    <!-- ============================================
          HEADER & NAVIGATION
     ============================================ -->
     <header class="header" id="header">
@@ -37,7 +58,7 @@
             </a>
 
             <nav class="nav" id="nav">
-                <span class="nav__logo">Perle de Fès</span>
+                <img src="/images/logo.png" alt="Perle de Fès" class="nav__logo-img">
                 <ul class="nav__list">
                     <li class="nav__item">
                         <a href="#accueil" class="nav__link active">Accueil</a>
@@ -68,39 +89,55 @@
         ============================================ -->
         <section class="hero" id="accueil">
             <div class="hero__overlay"></div>
+            <div class="hero__particles" id="heroParticles"></div>
+            <!-- Lanternes marocaines décoratives -->
+            <div class="hero__lantern hero__lantern--left">
+                <svg viewBox="0 0 40 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 0v10" stroke="currentColor" stroke-width="1"/>
+                    <path d="M12 10h16l4 8v30c0 6-4 12-8 16l-4 6-4-6c-4-4-8-10-8-16V18l4-8z" stroke="currentColor" stroke-width="1" fill="currentColor" fill-opacity="0.1"/>
+                    <ellipse cx="20" cy="35" rx="6" ry="8" stroke="currentColor" stroke-width="0.5" fill="currentColor" fill-opacity="0.15"/>
+                    <path d="M16 14h8" stroke="currentColor" stroke-width="0.5"/>
+                </svg>
+            </div>
+            <div class="hero__lantern hero__lantern--right">
+                <svg viewBox="0 0 40 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 0v10" stroke="currentColor" stroke-width="1"/>
+                    <path d="M12 10h16l4 8v30c0 6-4 12-8 16l-4 6-4-6c-4-4-8-10-8-16V18l4-8z" stroke="currentColor" stroke-width="1" fill="currentColor" fill-opacity="0.1"/>
+                    <ellipse cx="20" cy="35" rx="6" ry="8" stroke="currentColor" stroke-width="0.5" fill="currentColor" fill-opacity="0.15"/>
+                    <path d="M16 14h8" stroke="currentColor" stroke-width="0.5"/>
+                </svg>
+            </div>
+            <!-- Petites lanternes additionnelles -->
+            <div class="hero__lantern hero__lantern--bottom-left">
+                <svg viewBox="0 0 30 60" fill="none"><path d="M15 0v7" stroke="currentColor" stroke-width="0.8"/><path d="M9 7h12l3 6v20c0 4-3 8-6 11l-3 4-3-4c-3-3-6-7-6-11V13l3-6z" stroke="currentColor" stroke-width="0.8" fill="currentColor" fill-opacity="0.08"/></svg>
+            </div>
+            <div class="hero__lantern hero__lantern--bottom-right">
+                <svg viewBox="0 0 30 60" fill="none"><path d="M15 0v7" stroke="currentColor" stroke-width="0.8"/><path d="M9 7h12l3 6v20c0 4-3 8-6 11l-3 4-3-4c-3-3-6-7-6-11V13l3-6z" stroke="currentColor" stroke-width="0.8" fill="currentColor" fill-opacity="0.08"/></svg>
+            </div>
             <div class="hero__content">
-                <div class="hero__ornament">
-                    <!-- SVG Ornament marocain -->
-                    <svg viewBox="0 0 200 30" class="hero__ornament-svg">
-                        <path d="M0,15 Q25,0 50,15 T100,15 T150,15 T200,15" stroke="currentColor" fill="none" stroke-width="1"/>
-                        <circle cx="100" cy="15" r="4" fill="currentColor"/>
-                        <circle cx="50" cy="15" r="2" fill="currentColor"/>
-                        <circle cx="150" cy="15" r="2" fill="currentColor"/>
-                    </svg>
-                </div>
-                <h1 class="hero__title">Perle de Fès</h1>
+                <img src="/images/logo.png" alt="Perle de Fès" class="hero__logo">
+                <h1 class="hero__title visually-hidden">Perle de Fès</h1>
                 <p class="hero__subtitle">L'art de personnaliser vos plus beaux souvenirs</p>
                 <p class="hero__tagline">Cadeaux & créations marocaines faits avec amour, pour vos mariages, hennés et événements.</p>
                 <a href="#produits" class="btn btn--primary hero__cta">Découvrir nos créations</a>
-                <div class="hero__ornament hero__ornament--bottom">
-                    <svg viewBox="0 0 200 30" class="hero__ornament-svg">
-                        <path d="M0,15 Q25,30 50,15 T100,15 T150,15 T200,15" stroke="currentColor" fill="none" stroke-width="1"/>
-                    </svg>
-                </div>
-            </div>
+                            </div>
             <div class="hero__scroll-indicator">
                 <span></span>
             </div>
         </section>
 
         <!-- ============================================
-             SECTION SÉPARATEUR
+             SECTION SÉPARATEUR — Design épuré
         ============================================ -->
         <div class="section-divider">
-            <svg viewBox="0 0 400 40" class="divider__svg">
-                <path d="M0,20 L150,20" stroke="currentColor" fill="none" stroke-width="1"/>
-                <polygon points="200,5 210,20 200,35 190,20" fill="currentColor"/>
-                <path d="M250,20 L400,20" stroke="currentColor" fill="none" stroke-width="1"/>
+            <svg viewBox="0 0 320 24" class="divider__svg">
+                <path d="M0,12 L100,12" stroke="currentColor" fill="none" stroke-width="1"/>
+                <g transform="translate(160, 12)">
+                    <rect x="-8" y="-8" width="16" height="16" fill="currentColor" opacity="0.3"/>
+                    <rect x="-8" y="-8" width="16" height="16" fill="currentColor" opacity="0.3" transform="rotate(45)"/>
+                    <circle cx="0" cy="0" r="4" fill="currentColor"/>
+                </g>
+                <path d="M220,12 L320,12" stroke="currentColor" fill="none" stroke-width="1"/>
             </svg>
         </div>
 
@@ -117,25 +154,32 @@
                     <div class="presentation__features">
                         <div class="feature">
                             <div class="feature__icon">
+                                <!-- Lanterne marocaine -->
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                                    <path d="M8 2h8l2 4v10a2 2 0 01-2 2H8a2 2 0 01-2-2V6l2-4z"/>
+                                    <path d="M12 18v4"/>
+                                    <path d="M8 6h8"/>
+                                    <path d="M10 2v4"/>
+                                    <path d="M14 2v4"/>
+                                    <circle cx="12" cy="11" r="2"/>
                                 </svg>
                             </div>
                             <span class="feature__text">Fait main</span>
                         </div>
                         <div class="feature">
                             <div class="feature__icon">
+                                <!-- Croissant de lune oriental -->
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
                                 </svg>
                             </div>
                             <span class="feature__text">Avec amour</span>
                         </div>
                         <div class="feature">
                             <div class="feature__icon">
+                                <!-- Etoile 8 branches -->
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <path d="M12 6v6l4 2"/>
+                                    <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/>
                                 </svg>
                             </div>
                             <span class="feature__text">Personnalisable</span>
@@ -146,13 +190,17 @@
         </section>
 
         <!-- ============================================
-             SECTION SÉPARATEUR
+             SECTION SÉPARATEUR — Design épuré
         ============================================ -->
         <div class="section-divider">
-            <svg viewBox="0 0 400 40" class="divider__svg">
-                <path d="M0,20 L150,20" stroke="currentColor" fill="none" stroke-width="1"/>
-                <polygon points="200,5 210,20 200,35 190,20" fill="currentColor"/>
-                <path d="M250,20 L400,20" stroke="currentColor" fill="none" stroke-width="1"/>
+            <svg viewBox="0 0 320 24" class="divider__svg">
+                <path d="M0,12 L100,12" stroke="currentColor" fill="none" stroke-width="1"/>
+                <g transform="translate(160, 12)">
+                    <rect x="-8" y="-8" width="16" height="16" fill="currentColor" opacity="0.3"/>
+                    <rect x="-8" y="-8" width="16" height="16" fill="currentColor" opacity="0.3" transform="rotate(45)"/>
+                    <circle cx="0" cy="0" r="4" fill="currentColor"/>
+                </g>
+                <path d="M220,12 L320,12" stroke="currentColor" fill="none" stroke-width="1"/>
             </svg>
         </div>
 
@@ -197,14 +245,26 @@
                 </button>
 
                 <div class="modal__content">
-                    <!-- Section Image avec cadre décoratif -->
+                    <!-- Section Image avec carrousel -->
                     <div class="modal__image-section">
-                        <div class="modal__image-frame">
-                            <div class="modal__image-corner modal__image-corner--tl"></div>
-                            <div class="modal__image-corner modal__image-corner--tr"></div>
-                            <div class="modal__image-corner modal__image-corner--bl"></div>
-                            <div class="modal__image-corner modal__image-corner--br"></div>
-                            <img src="" alt="" class="modal__image" id="modalImage">
+                        <div class="modal__carousel" id="modalCarousel">
+                            <div class="modal__image-frame">
+                                <div class="modal__image-corner modal__image-corner--tl"></div>
+                                <div class="modal__image-corner modal__image-corner--tr"></div>
+                                <div class="modal__image-corner modal__image-corner--bl"></div>
+                                <div class="modal__image-corner modal__image-corner--br"></div>
+                                <img src="" alt="" class="modal__image" id="modalImage">
+                            </div>
+                            <!-- Navigation carrousel -->
+                            <div class="modal__carousel-nav" id="modalCarouselNav">
+                                <button class="modal__carousel-btn modal__carousel-btn--prev" id="modalPrev" aria-label="Image précédente">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                                </button>
+                                <div class="modal__carousel-dots" id="modalDots"></div>
+                                <button class="modal__carousel-btn modal__carousel-btn--next" id="modalNext" aria-label="Image suivante">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                                </button>
+                            </div>
                         </div>
                         <div class="modal__image-badge" id="modalBadge"></div>
                     </div>
@@ -265,13 +325,177 @@
         </div>
 
         <!-- ============================================
-             SECTION SÉPARATEUR
+             SECTION SÉPARATEUR — Design épuré
         ============================================ -->
         <div class="section-divider">
-            <svg viewBox="0 0 400 40" class="divider__svg">
-                <path d="M0,20 L150,20" stroke="currentColor" fill="none" stroke-width="1"/>
-                <polygon points="200,5 210,20 200,35 190,20" fill="currentColor"/>
-                <path d="M250,20 L400,20" stroke="currentColor" fill="none" stroke-width="1"/>
+            <svg viewBox="0 0 320 24" class="divider__svg">
+                <path d="M0,12 L100,12" stroke="currentColor" fill="none" stroke-width="1"/>
+                <g transform="translate(160, 12)">
+                    <rect x="-8" y="-8" width="16" height="16" fill="currentColor" opacity="0.3"/>
+                    <rect x="-8" y="-8" width="16" height="16" fill="currentColor" opacity="0.3" transform="rotate(45)"/>
+                    <circle cx="0" cy="0" r="4" fill="currentColor"/>
+                </g>
+                <path d="M220,12 L320,12" stroke="currentColor" fill="none" stroke-width="1"/>
+            </svg>
+        </div>
+
+        <!-- ============================================
+             SECTION EVENEMENTS — Mariage / Henné / Ramadan
+        ============================================ -->
+        <section class="events" id="evenements">
+            <div class="container">
+                <div class="events__header animate-on-scroll">
+                    <h2 class="section__title">Nos Événements</h2>
+                    <p class="section__subtitle">Des créations pensées pour chaque moment de votre vie</p>
+                </div>
+
+                <div class="events__grid">
+                    <div class="events__card animate-on-scroll">
+                        <div class="events__card-bg" style="background-image: url('https://placehold.co/600x800/2C2420/C9A84C?text=Mariage')"></div>
+                        <div class="events__card-content">
+                            <div class="events__card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                </svg>
+                            </div>
+                            <h3 class="events__card-title">Mariage</h3>
+                            <p class="events__card-desc">Paniers hammam pour la mariée, cadeaux invités, dragées personnalisées et papeterie sur mesure.</p>
+                        </div>
+                    </div>
+
+                    <div class="events__card animate-on-scroll">
+                        <div class="events__card-bg" style="background-image: url('https://placehold.co/600x800/2C2420/C9A84C?text=Henn%C3%A9')"></div>
+                        <div class="events__card-content">
+                            <div class="events__card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/>
+                                </svg>
+                            </div>
+                            <h3 class="events__card-title">Henné</h3>
+                            <p class="events__card-desc">Mini paniers cuivre, accessoires traditionnels et cadeaux personnalisés pour le Henna Day.</p>
+                        </div>
+                    </div>
+
+                    <div class="events__card animate-on-scroll">
+                        <div class="events__card-bg" style="background-image: url('https://placehold.co/600x800/2C2420/C9A84C?text=Ramadan')"></div>
+                        <div class="events__card-content">
+                            <div class="events__card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                                </svg>
+                            </div>
+                            <h3 class="events__card-title">Ramadan</h3>
+                            <p class="events__card-desc">Coffrets cadeaux spéciaux, paniers garnis et créations uniques pour célébrer le mois sacré.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION CHIFFRES — Fond doré
+        ============================================ -->
+        <section class="chiffres">
+            <div class="container">
+                <div class="chiffres__grid">
+                    <div class="chiffres__item animate-on-scroll">
+                        <div class="chiffres__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/>
+                            </svg>
+                        </div>
+                        <span class="chiffres__value" data-target="100">0</span>
+                        <span class="chiffres__label">% Artisanal</span>
+                    </div>
+
+                    <div class="chiffres__item animate-on-scroll">
+                        <div class="chiffres__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                        </div>
+                        <span class="chiffres__value">Fait avec amour</span>
+                        <span class="chiffres__label">Chaque création est unique</span>
+                    </div>
+
+                    <div class="chiffres__item animate-on-scroll">
+                        <div class="chiffres__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="1" y="3" width="15" height="13"/>
+                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                                <circle cx="5.5" cy="18.5" r="2.5"/>
+                                <circle cx="18.5" cy="18.5" r="2.5"/>
+                            </svg>
+                        </div>
+                        <span class="chiffres__value">France</span>
+                        <span class="chiffres__label">Livraison France entière</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION TÉMOIGNAGES
+        ============================================ -->
+        <section class="testimonials" id="temoignages">
+            <div class="container">
+                <div class="testimonials__header animate-on-scroll">
+                    <h2 class="section__title">Ce que disent nos clientes</h2>
+                    <p class="section__subtitle">La satisfaction de nos clientes est notre plus belle récompense</p>
+                </div>
+
+                <div class="testimonials__grid">
+                    <div class="testimonial__card animate-on-scroll">
+                        <div class="testimonial__stars">
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        </div>
+                        <p class="testimonial__text">Les paniers étaient magnifiques pour mon henné ! Chaque détail était parfait, mes invitées ont adoré. Je recommande à 100%.</p>
+                        <span class="testimonial__author">Amina R.</span>
+                    </div>
+
+                    <div class="testimonial__card animate-on-scroll">
+                        <div class="testimonial__stars">
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        </div>
+                        <p class="testimonial__text">Un travail d'une qualité exceptionnelle. La papeterie pour notre mariage était sublime, avec une touche orientale raffinée.</p>
+                        <span class="testimonial__author">Fatima Z.</span>
+                    </div>
+
+                    <div class="testimonial__card animate-on-scroll">
+                        <div class="testimonial__stars">
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        </div>
+                        <p class="testimonial__text">Les dragées étaient parfaites et livrées dans les temps. Le service est irréprochable et la communication très agréable.</p>
+                        <span class="testimonial__author">Sarah M.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================
+             SECTION SÉPARATEUR — Design épuré
+        ============================================ -->
+        <div class="section-divider">
+            <svg viewBox="0 0 320 24" class="divider__svg">
+                <path d="M0,12 L100,12" stroke="currentColor" fill="none" stroke-width="1"/>
+                <g transform="translate(160, 12)">
+                    <rect x="-8" y="-8" width="16" height="16" fill="currentColor" opacity="0.3"/>
+                    <rect x="-8" y="-8" width="16" height="16" fill="currentColor" opacity="0.3" transform="rotate(45)"/>
+                    <circle cx="0" cy="0" r="4" fill="currentColor"/>
+                </g>
+                <path d="M220,12 L320,12" stroke="currentColor" fill="none" stroke-width="1"/>
             </svg>
         </div>
 
@@ -283,6 +507,16 @@
                 <div class="quote__header animate-on-scroll">
                     <h2 class="section__title">Demande de devis personnalisé</h2>
                     <p class="section__subtitle">Remplissez le formulaire et je vous répondrai sous 24-48h !</p>
+                </div>
+
+                <!-- Ornement arabesque au-dessus du formulaire -->
+                <div class="quote__ornament animate-on-scroll">
+                    <svg viewBox="0 0 200 24" fill="none">
+                        <path d="M0,12 L60,12" stroke="currentColor" stroke-width="1"/>
+                        <polygon points="100,2 108,12 100,22 92,12" fill="currentColor" opacity="0.3"/>
+                        <circle cx="100" cy="12" r="4" fill="currentColor"/>
+                        <path d="M140,12 L200,12" stroke="currentColor" stroke-width="1"/>
+                    </svg>
                 </div>
 
                 <form class="quote__form animate-on-scroll" id="quoteForm">
@@ -355,6 +589,16 @@
                     </button>
                 </form>
 
+                <!-- Ornement arabesque en bas du formulaire -->
+                <div class="quote__ornament animate-on-scroll">
+                    <svg viewBox="0 0 200 24" fill="none">
+                        <path d="M0,12 L60,12" stroke="currentColor" stroke-width="1"/>
+                        <polygon points="100,2 108,12 100,22 92,12" fill="currentColor" opacity="0.3"/>
+                        <circle cx="100" cy="12" r="4" fill="currentColor"/>
+                        <path d="M140,12 L200,12" stroke="currentColor" stroke-width="1"/>
+                    </svg>
+                </div>
+
                 <!-- Message de confirmation -->
                 <div class="quote__success" id="formSuccess">
                     <div class="quote__success-icon">
@@ -369,13 +613,17 @@
         </section>
 
         <!-- ============================================
-             SECTION SÉPARATEUR
+             SECTION SÉPARATEUR — Design épuré
         ============================================ -->
         <div class="section-divider">
-            <svg viewBox="0 0 400 40" class="divider__svg">
-                <path d="M0,20 L150,20" stroke="currentColor" fill="none" stroke-width="1"/>
-                <polygon points="200,5 210,20 200,35 190,20" fill="currentColor"/>
-                <path d="M250,20 L400,20" stroke="currentColor" fill="none" stroke-width="1"/>
+            <svg viewBox="0 0 320 24" class="divider__svg">
+                <path d="M0,12 L100,12" stroke="currentColor" fill="none" stroke-width="1"/>
+                <g transform="translate(160, 12)">
+                    <rect x="-8" y="-8" width="16" height="16" fill="currentColor" opacity="0.3"/>
+                    <rect x="-8" y="-8" width="16" height="16" fill="currentColor" opacity="0.3" transform="rotate(45)"/>
+                    <circle cx="0" cy="0" r="4" fill="currentColor"/>
+                </g>
+                <path d="M220,12 L320,12" stroke="currentColor" fill="none" stroke-width="1"/>
             </svg>
         </div>
 
@@ -403,14 +651,14 @@
                     </a>
 
                     <!-- Instagram -->
-                    <a href="https://instagram.com/perledefes.creation" class="contact__card" target="_blank" rel="noopener">
+                    <a href="https://instagram.com/perledefes_creation" class="contact__card" target="_blank" rel="noopener">
                         <div class="contact__icon contact__icon--instagram">
                             <svg viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                             </svg>
                         </div>
                         <h3 class="contact__title">Instagram</h3>
-                        <p class="contact__info">@perledefes.creation</p>
+                        <p class="contact__info">@perledefes_creation</p>
                         <span class="contact__cta">Voir le profil</span>
                     </a>
 
@@ -439,6 +687,28 @@
                 </div>
             </div>
         </section>
+        <!-- ============================================
+             SECTION INSTAGRAM
+        ============================================ -->
+        <section class="instagram">
+            <div class="container">
+                <h2 class="section__title animate-on-scroll">Suivez-nous</h2>
+                <a href="https://instagram.com/perledefes_creation" target="_blank" rel="noopener" class="instagram__handle">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="instagram__icon">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                    @perledefes_creation
+                </a>
+                <div class="instagram__grid">
+                    <div class="instagram__item"><img src="/images/panier_mini.jpeg" alt="Panier Mini"></div>
+                    <div class="instagram__item"><img src="/images/panier_essentiel.jpeg" alt="Panier Essentiel"></div>
+                    <div class="instagram__item"><img src="/images/panier_premium.jpeg" alt="Panier Premium"></div>
+                    <div class="instagram__item"><img src="/images/dragees.jpeg" alt="Dragées"></div>
+                    <div class="instagram__item"><img src="/images/papeterie.jpeg" alt="Papeterie"></div>
+                    <div class="instagram__item"><img src="/images/dragees_2.jpeg" alt="Dragées"></div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- ============================================
@@ -450,6 +720,13 @@
                 <path d="M0,10 Q50,0 100,10 T200,10 T300,10 T400,10" stroke="currentColor" fill="none" stroke-width="1"/>
             </svg>
         </div>
+        <!-- Lanternes décoratives footer -->
+        <div class="footer__lantern footer__lantern--left">
+            <svg viewBox="0 0 30 60" fill="none"><path d="M15 0v8" stroke="currentColor" stroke-width="0.8"/><path d="M9 8h12l3 6v22c0 4-3 9-6 12l-3 4-3-4c-3-3-6-8-6-12V14l3-6z" stroke="currentColor" stroke-width="0.8" fill="currentColor" fill-opacity="0.1"/></svg>
+        </div>
+        <div class="footer__lantern footer__lantern--right">
+            <svg viewBox="0 0 30 60" fill="none"><path d="M15 0v8" stroke="currentColor" stroke-width="0.8"/><path d="M9 8h12l3 6v22c0 4-3 9-6 12l-3 4-3-4c-3-3-6-8-6-12V14l3-6z" stroke="currentColor" stroke-width="0.8" fill="currentColor" fill-opacity="0.1"/></svg>
+        </div>
         <div class="container">
             <div class="footer__content">
                 <p class="footer__brand">Perle de Fès</p>
@@ -459,7 +736,7 @@
                     <span>•</span>
                     <a href="tel:+33652375578">06 52 37 55 78</a>
                     <span>•</span>
-                    <a href="https://instagram.com/perledefes.creation" target="_blank" rel="noopener">Instagram : perledefes.creation</a>
+                    <a href="https://instagram.com/perledefes_creation" target="_blank" rel="noopener">Instagram : perledefes_creation</a>
                 </div>
                 <p class="footer__copy">Tous droits réservés 2025</p>
             </div>
@@ -471,6 +748,7 @@
     ============================================ -->
     <a href="https://wa.me/33652375578?text=Bonjour%2C%20je%20suis%20int%C3%A9ress%C3%A9e%20par%20vos%20cr%C3%A9ations%20Perle%20de%20F%C3%A8s%20!"
        class="whatsapp-float"
+       id="whatsappBtn"
        target="_blank"
        rel="noopener"
        aria-label="Contacter sur WhatsApp">
@@ -478,6 +756,35 @@
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
         </svg>
     </a>
+
+    <style>
+    /* WhatsApp button - visible uniquement sur page principale */
+    #whatsappBtn {
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 60px !important;
+        height: 60px !important;
+        background: #25D366 !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 8000 !important;
+        box-shadow: 0 4px 15px rgba(37,211,102,0.5) !important;
+        text-decoration: none !important;
+    }
+    #whatsappBtn svg {
+        width: 32px !important;
+        height: 32px !important;
+        fill: white !important;
+    }
+    /* Cacher WhatsApp quand modal ou nav ouverte */
+    body.modal-open #whatsappBtn,
+    body.nav-open #whatsappBtn {
+        display: none !important;
+    }
+    </style>
 
     <!-- JavaScript -->
     <script src="js/main.js"></script>

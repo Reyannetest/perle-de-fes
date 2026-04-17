@@ -5,7 +5,10 @@
       "price": "11€",
       "badge": "Idéal cadeau Henna Day",
       "delay": "Délai : 2 semaines maximum",
-      "image": "https://placehold.co/600x500/F5EFE6/C9A84C?text=Panier+Mini",
+      "image": "/images/panier_mini.jpeg",
+      "images": [
+        "/images/panier_mini.jpeg"
+      ],
       "order": 1,
       "composition": [
         "Petit seau en cuivre",
@@ -22,7 +25,10 @@
       "price": "35€",
       "badge": "Personnalisation possible",
       "delay": "Délai : 2 semaines maximum",
-      "image": "https://placehold.co/600x500/F5EFE6/C9A84C?text=Panier+Essentiel",
+      "image": "/images/panier_essentiel.jpeg",
+      "images": [
+        "/images/panier_essentiel.jpeg"
+      ],
       "order": 2,
       "composition": [
         "Seau moyen en cuivre",
@@ -42,7 +48,10 @@
       "price": "55€",
       "badge": "Idéal future mariée",
       "delay": "Délai : 2 semaines maximum",
-      "image": "https://placehold.co/600x500/F5EFE6/C9A84C?text=Panier+Premium",
+      "image": "/images/panier_premium.jpeg",
+      "images": [
+        "/images/panier_premium.jpeg"
+      ],
       "order": 3,
       "composition": [
         "Grand seau en cuivre",
@@ -62,7 +71,16 @@
       "price": "À partir de 1,50€/pièce",
       "badge": "Prix adapté selon quantité",
       "delay": "Délai : 2 à 3 semaines",
-      "image": "https://placehold.co/600x500/F5EFE6/C9A84C?text=Drag%C3%A9es",
+      "image": "/images/dragees.jpeg",
+      "images": [
+        "/images/dragees.jpeg",
+        "/images/dragees_2.jpeg",
+        "/images/dragees_3.jpeg",
+        "/images/dragees_4.jpeg",
+        "/images/dragees_5.jpeg",
+        "/images/dragees_6.jpeg",
+        "/images/dragees_7.jpeg"
+      ],
       "order": 4,
       "composition": [
         "Dragées marocaines orientales — tous modèles",
@@ -78,7 +96,11 @@
       "price": "À partir de 1,50€/pièce",
       "badge": "Modèles sur demande",
       "delay": "Délai : 2 à 3 semaines",
-      "image": "https://placehold.co/600x500/F5EFE6/C9A84C?text=Papeterie",
+      "image": "/images/papeterie.jpeg",
+      "images": [
+        "/images/papeterie.jpeg",
+        "/images/papeterie_2.jpeg"
+      ],
       "order": 5,
       "composition": [
         "Tout type de papeterie souhaitée sur demande",

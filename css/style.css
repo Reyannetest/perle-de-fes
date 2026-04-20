@@ -3895,18 +3895,26 @@ body.custom-cursor-active textarea {
    ============================================ */
 .skip-link {
     position: absolute;
-    top: -100%;
-    left: 50%;
-    transform: translateX(-50%);
+    left: -9999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    z-index: 100000;
     background: var(--gold);
     color: white;
     padding: 12px 24px;
     border-radius: var(--radius-medium);
     font-weight: 600;
-    z-index: 100000;
-    transition: top 0.3s ease;
+    text-decoration: none;
 }
 
 .skip-link:focus {
+    position: fixed;
     top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    height: auto;
+    overflow: visible;
 }

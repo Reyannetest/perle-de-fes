@@ -2356,8 +2356,7 @@ ul {
 .chiffres {
     padding: 60px 0;
     /* Fond beige uni */
-    background-color: var(--beige
-    );
+    background-color: var(--beige);
     position: relative;
 }
 

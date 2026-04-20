@@ -901,10 +901,10 @@ function sendEmail() {
         email: document.getElementById('email').value,
         phone: document.getElementById('phone').value,
         products: document.getElementById('productType').value,
-        guests: document.getElementById('quantity').value,
+        quantity: document.getElementById('quantity').value,
         event_date: document.getElementById('eventDate').value,
         event_type: document.getElementById('eventType').value,
-        budget: document.getElementById('personalization').value || 'Non spécifié',
+        personalization: document.getElementById('personalization').value || 'Non spécifié',
         message: document.getElementById('message').value || 'Aucun message'
     };
 

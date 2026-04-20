@@ -12,14 +12,38 @@
     "textLight": "#5A5A5A"
   },
   "sectionColors": {
-    "hero": { "bg": "#FAF6F0", "text": "#2C2420" },
-    "presentation": { "bg": "#F5EFE6", "text": "#2C2420" },
-    "products": { "bg": "#FAF6F0", "text": "#2C2420" },
-    "events": { "bg": "#F5EFE6", "text": "#2C2420" },
-    "testimonials": { "bg": "#FAF6F0", "text": "#2C2420" },
-    "quote": { "bg": "#F5EFE6", "text": "#2C2420" },
-    "contact": { "bg": "#FAF6F0", "text": "#2C2420" },
-    "footer": { "bg": "#2C2420", "text": "#FAF6F0" }
+    "hero": {
+      "bg": "#FAF6F0",
+      "text": "#2C2420"
+    },
+    "presentation": {
+      "bg": "#F5EFE6",
+      "text": "#2C2420"
+    },
+    "products": {
+      "bg": "#FAF6F0",
+      "text": "#2C2420"
+    },
+    "events": {
+      "bg": "#F5EFE6",
+      "text": "#2C2420"
+    },
+    "testimonials": {
+      "bg": "#FAF6F0",
+      "text": "#2C2420"
+    },
+    "quote": {
+      "bg": "#F5EFE6",
+      "text": "#2C2420"
+    },
+    "contact": {
+      "bg": "#FAF6F0",
+      "text": "#2C2420"
+    },
+    "footer": {
+      "bg": "#2C2420",
+      "text": "#FAF6F0"
+    }
   },
   "fonts": {
     "title": "Cormorant Garamond",
@@ -30,22 +54,13 @@
       "enabled": true,
       "opacity": 0.12
     },
-    "zellige": {
-      "enabled": true,
-      "opacity": 0.12,
-      "style": "geometric"
-    },
     "presentation": {
       "enabled": true,
-      "opacity": 0.10
+      "opacity": 0.1
     },
     "events": {
       "enabled": true,
       "opacity": 0.12
-    },
-    "testimonials": {
-      "enabled": true,
-      "opacity": 0.10
     }
   },
   "calligraphy": {

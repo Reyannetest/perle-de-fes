@@ -4,6 +4,35 @@
 const REPO = process.env.GITHUB_REPO || 'Reyannetest/perle-de-fes';
 const BRANCH = process.env.GITHUB_BRANCH || 'main';
 
+// Whitelist des chemins autorisés pour la sécurité (path traversal protection)
+const ALLOWED_PATHS = [
+    'data/site-content.json',
+    'data/site-design.json',
+    'data/products.json'
+];
+const ALLOWED_PATH_PREFIXES = [
+    'images/',
+    'data/'
+];
+
+function isPathAllowed(path) {
+    // Normaliser le chemin et vérifier les tentatives de traversal
+    const normalizedPath = path.replace(/\\/g, '/').replace(/^\/+/, '');
+
+    // Bloquer les tentatives de path traversal
+    if (normalizedPath.includes('..') || normalizedPath.includes('//')) {
+        return false;
+    }
+
+    // Vérifier si le chemin est dans la whitelist exacte
+    if (ALLOWED_PATHS.includes(normalizedPath)) {
+        return true;
+    }
+
+    // Vérifier si le chemin commence par un préfixe autorisé
+    return ALLOWED_PATH_PREFIXES.some(prefix => normalizedPath.startsWith(prefix));
+}
+
 exports.handler = async function (event, context) {
     // Vérifier l'authentification
     const { identity, user } = context.clientContext || {};
@@ -33,6 +62,14 @@ exports.handler = async function (event, context) {
     }
 
     const { action } = body;
+
+    // Vérifier que le chemin est autorisé (protection path traversal)
+    if (body.path && !isPathAllowed(body.path)) {
+        return {
+            statusCode: 403,
+            body: JSON.stringify({ error: 'Chemin non autorisé: ' + body.path })
+        };
+    }
 
     try {
         if (action === 'save') {

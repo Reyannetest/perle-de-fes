@@ -12,10 +12,32 @@ const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
 const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
 
 // ============================================
+// UTILITAIRES DE SÉCURITÉ
+// ============================================
+function isValidUrl(string) {
+    try {
+        const url = new URL(string);
+        return ['http:', 'https:', 'mailto:', 'tel:'].includes(url.protocol);
+    } catch (_) {
+        return false;
+    }
+}
+
+function sanitizeUrl(url) {
+    if (!url) return '#';
+    if (url.startsWith('mailto:') || url.startsWith('tel:') || url.startsWith('https://') || url.startsWith('http://')) {
+        return url;
+    }
+    if (url.startsWith('/')) return url;
+    return '#';
+}
+
+// ============================================
 // DONNÉES (chargées dynamiquement)
 // ============================================
 let productsData = {};
 let siteContent = {};
+let siteDesign = {};
 
 // ============================================
 // CHARGEMENT DES DONNÉES
@@ -23,13 +45,44 @@ let siteContent = {};
 async function loadSiteContent() {
     try {
         const response = await fetch('/data/site-content.json');
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        siteContent = await response.json();
+        applySiteContent();
+    } catch (e) {
+        console.warn('Contenu du site non chargé:', e.message, '— utilisation du HTML statique.');
+    }
+}
+
+async function loadSiteDesign() {
+    try {
+        const response = await fetch('/data/site-design.json');
         if (response.ok) {
-            siteContent = await response.json();
-            applySiteContent();
+            siteDesign = await response.json();
+            applyTextureSettings();
         }
     } catch (e) {
-        console.warn('Contenu du site non chargé, utilisation du HTML statique.');
+        console.warn('Design du site non chargé, utilisation des valeurs par défaut.');
     }
+}
+
+function applyTextureSettings() {
+    const tex = siteDesign.textures || {};
+
+    // Appliquer les réglages de textures pour chaque section
+    const sections = ['hero', 'presentation', 'products', 'events', 'testimonials', 'quote', 'contact'];
+
+    sections.forEach(section => {
+        const sectionEl = document.querySelector(`.${section}`);
+        if (sectionEl && tex[section]) {
+            if (tex[section].enabled === false) {
+                sectionEl.style.setProperty('--texture-opacity', '0');
+            } else {
+                sectionEl.style.setProperty('--texture-opacity', tex[section].opacity || 0.25);
+            }
+        }
+    });
 }
 
 async function loadProducts() {
@@ -215,16 +268,11 @@ function applySiteContent() {
         }
 
         // Sidebar display (text, logo, both)
-        const sidebarDisplay = c.hero.sidebarDisplay || 'text';
-        const navLogo = document.querySelector('.nav__logo');
-        if (navLogo) {
-            if (sidebarDisplay === 'text') {
-                navLogo.textContent = c.hero.title;
-            } else if (sidebarDisplay === 'logo' && c.hero.logo) {
-                navLogo.innerHTML = `<img src="${c.hero.logo}" alt="${c.hero.title}" style="height:50px;">`;
-            } else if (sidebarDisplay === 'both' && c.hero.logo) {
-                navLogo.innerHTML = `<img src="${c.hero.logo}" alt="${c.hero.title}" style="height:40px;margin-bottom:8px;"><br>${c.hero.title}`;
-            }
+        // Logo dans la sidebar mobile
+        const navLogo = document.querySelector('.nav__logo-img');
+        if (navLogo && c.hero.logo) {
+            navLogo.src = c.hero.logo;
+            navLogo.alt = c.hero.title;
         }
     }
 
@@ -303,7 +351,7 @@ function applySiteContent() {
                 deliveryList.innerHTML = '';
                 c.contact.deliveryInfo.forEach(item => {
                     const li = document.createElement('li');
-                    li.innerHTML = item;
+                    li.textContent = item;
                     deliveryList.appendChild(li);
                 });
             }
@@ -327,13 +375,33 @@ function applySiteContent() {
         if (c.contact) {
             const footerContact = document.querySelector('.footer__contact');
             if (footerContact) {
-                footerContact.innerHTML = `
-                    <a href="mailto:${c.contact.email}">${c.contact.email}</a>
-                    <span>•</span>
-                    <a href="tel:+${c.contact.whatsappNumber}">${c.contact.whatsapp}</a>
-                    <span>•</span>
-                    <a href="${c.contact.instagramUrl}" target="_blank" rel="noopener">Instagram : ${c.contact.instagram.replace('@', '')}</a>
-                `;
+                footerContact.textContent = '';
+
+                const emailLink = document.createElement('a');
+                emailLink.href = 'mailto:' + c.contact.email;
+                emailLink.textContent = c.contact.email;
+
+                const sep1 = document.createElement('span');
+                sep1.textContent = '•';
+
+                const phoneLink = document.createElement('a');
+                phoneLink.href = 'tel:+' + c.contact.whatsappNumber;
+                phoneLink.textContent = c.contact.whatsapp;
+
+                const sep2 = document.createElement('span');
+                sep2.textContent = '•';
+
+                const instaLink = document.createElement('a');
+                instaLink.href = c.contact.instagramUrl;
+                instaLink.target = '_blank';
+                instaLink.rel = 'noopener noreferrer';
+                instaLink.textContent = 'Instagram : ' + c.contact.instagram.replace('@', '');
+
+                footerContact.appendChild(emailLink);
+                footerContact.appendChild(sep1);
+                footerContact.appendChild(phoneLink);
+                footerContact.appendChild(sep2);
+                footerContact.appendChild(instaLink);
             }
         }
     }
@@ -381,10 +449,9 @@ function applySiteContent() {
                     const text = testimonialCards[i].querySelector('.testimonial__text');
                     const author = testimonialCards[i].querySelector('.testimonial__author');
                     if (text) {
-                        // Garder les guillemets
-                        text.innerHTML = text.innerHTML.replace(/^["""].*["""]$/, '') + item.text;
+                        text.textContent = item.text;
                     }
-                    if (author) author.textContent = `— ${item.author}`;
+                    if (author) author.textContent = '— ' + item.author;
                 }
             });
         }
@@ -405,6 +472,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     await Promise.all([
         loadSiteContent(),
+        loadSiteDesign(),
         loadProducts()
     ]);
 });
@@ -873,11 +941,28 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // PRELOAD DES IMAGES
 // ============================================
 function preloadImages() {
-    const imageUrls = Object.values(productsData).map(product => product.image);
+    // Ne précharger que si des produits sont chargés
+    if (!Object.keys(productsData).length) return;
+
+    const imageUrls = Object.values(productsData).flatMap(product => {
+        const urls = [];
+        if (product.image) urls.push(product.image);
+        if (product.images && Array.isArray(product.images)) {
+            urls.push(...product.images);
+        }
+        return urls;
+    });
+
     imageUrls.forEach(url => {
-        const img = new Image();
-        img.src = url;
+        if (url) {
+            const img = new Image();
+            img.src = url;
+        }
     });
 }
 
-window.addEventListener('load', preloadImages);
+// Précharger les images après le chargement complet
+window.addEventListener('load', () => {
+    // Délayer le preload pour ne pas bloquer le rendu initial
+    setTimeout(preloadImages, 1000);
+});

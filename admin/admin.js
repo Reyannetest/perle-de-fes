@@ -1,29 +1,45 @@
 /* ============================================
-   PERLE DE FES — ADMIN PANEL
+   PERLE DE FES — ADMIN PANEL COMPLET
+   Gestion complète du site
    ============================================ */
 
+// ============================================
+// VARIABLES GLOBALES
+// ============================================
 let currentUser = null;
 let productsData = { items: [] };
 let siteContent = {};
 let siteDesign = {};
 let editingProductIndex = -1;
-let pendingImageBase64 = null;
-let pendingImageName = null;
-let deleteTargetIndex = -1;
-let gatewayAvailable = null; // null = not checked, true/false
+let editingTestimonialIndex = -1;
+let pendingProductImages = [];
+let pendingUploads = {};
+let deleteCallback = null;
+
+// Polices disponibles
+const AVAILABLE_FONTS = [
+    { name: 'Cormorant Garamond', category: 'serif', preview: 'Élégance Classique' },
+    { name: 'Playfair Display', category: 'serif', preview: 'Luxe Raffiné' },
+    { name: 'Lora', category: 'serif', preview: 'Charme Intemporel' },
+    { name: 'Montserrat', category: 'sans-serif', preview: 'Modernité Claire' },
+    { name: 'Poppins', category: 'sans-serif', preview: 'Style Contemporain' },
+    { name: 'Raleway', category: 'sans-serif', preview: 'Simplicité Élégante' },
+    { name: 'Open Sans', category: 'sans-serif', preview: 'Lisibilité Parfaite' }
+];
 
 // ============================================
-// INIT
+// INITIALISATION
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     initAuth();
     initTabs();
     initProductModal();
     initDeleteModal();
+    initTestimonialModal();
 });
 
 // ============================================
-// AUTH
+// AUTHENTIFICATION
 // ============================================
 function initAuth() {
     netlifyIdentity.on('init', user => { if (user) { currentUser = user; showAdmin(); } });
@@ -43,42 +59,45 @@ async function showAdmin() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
     await loadAllData();
-    checkSaveFunction();
-}
-
-async function checkSaveFunction() {
-    // On vérifie simplement que la function existe en testant un save
-    // La bannière sera affichée si le premier save échoue
-    document.getElementById('setupBanner').style.display = 'none';
-    console.log('Admin prêt. Sauvegarde via Netlify Function.');
 }
 
 // ============================================
-// CHARGEMENT DONNEES
+// CHARGEMENT DES DONNEES
 // ============================================
 async function loadAllData() {
+    showLoader();
     try {
         const [pRes, cRes, dRes] = await Promise.all([
             fetch('/data/products.json'),
             fetch('/data/site-content.json'),
-            fetch('/data/site-design.json')
+            fetch('/data/site-design.json').catch(() => ({ ok: false }))
         ]);
+
         productsData = await pRes.json();
         siteContent = await cRes.json();
-        siteDesign = await dRes.json();
-    } catch (e) {
-        console.error('Erreur chargement:', e);
-        // Defaults si site-design.json n'existe pas encore
-        if (!siteDesign || Object.keys(siteDesign).length === 0) {
+
+        if (dRes.ok) {
+            siteDesign = await dRes.json();
+        } else {
             siteDesign = getDefaultDesign();
         }
+    } catch (e) {
+        console.error('Erreur chargement:', e);
+        siteDesign = getDefaultDesign();
     }
+
+    // Render all forms
     renderProductsList();
-    renderDesignForm();
-    renderOrnamentsForm();
-    renderAppearanceForm();
     renderTextsForm();
+    renderColorsForm();
+    renderFontsForm();
+    renderImagesForm();
+    renderEventsForm();
+    renderTestimonialsForm();
+    renderOrnamentsForm();
     renderContactForm();
+
+    hideLoader();
 }
 
 function getDefaultDesign() {
@@ -88,26 +107,33 @@ function getDefaultDesign() {
             primaryLight: "#E8D5A3",
             primaryDark: "#8B6914",
             background: "#FAF6F0",
-            backgroundSection: "#F0E8D8",
-            text: "#2C2420"
+            backgroundAlt: "#F5EFE6",
+            text: "#2C2C2C",
+            textLight: "#5A5A5A"
+        },
+        sectionColors: {
+            hero: { bg: "#FAF6F0", text: "#2C2C2C" },
+            presentation: { bg: "#F5EFE6", text: "#2C2C2C" },
+            products: { bg: "#FAF6F0", text: "#2C2C2C" },
+            events: { bg: "#F5EFE6", text: "#2C2C2C" },
+            testimonials: { bg: "#FAF6F0", text: "#2C2C2C" },
+            quote: { bg: "#F5EFE6", text: "#2C2C2C" },
+            contact: { bg: "#FAF6F0", text: "#2C2C2C" },
+            footer: { bg: "#2C2C2C", text: "#FAF6F0" }
+        },
+        fonts: {
+            title: "Cormorant Garamond",
+            body: "Montserrat"
         },
         textures: {
-            zellige: { enabled: true, opacity: 0.12 },
+            hero: { enabled: true, opacity: 0.12 },
             presentation: { enabled: true, opacity: 0.10 },
-            events: { enabled: true, opacity: 0.12 },
-            testimonials: { enabled: true, opacity: 0.10 }
-        },
-        calligraphy: {
-            hero: { text: "\u0628\u064a\u0631\u0644 \u062f\u0648 \u0641\u0627\u0633", enabled: true, opacity: 0.06 },
-            presentation: { text: "\u0627\u0644\u062c\u0645\u0627\u0644", enabled: true, opacity: 0.08 }
+            events: { enabled: true, opacity: 0.12 }
         },
         ornaments: {
             dividers: { style: "simple", opacity: 0.6 },
-            stars: { showOnTitles: true, opacity: 0.85 }
-        },
-        productCards: {
-            backgroundColor: "#FFFFFF",
-            hoverBorderColor: "#C9A84C"
+            stars: { showOnTitles: true, opacity: 0.85 },
+            lanterns: { hero: true, footer: true }
         }
     };
 }
@@ -127,7 +153,7 @@ function initTabs() {
 }
 
 // ============================================
-// PRODUITS — LISTE
+// PRODUITS
 // ============================================
 function renderProductsList() {
     const list = document.getElementById('productsList');
@@ -135,77 +161,47 @@ function renderProductsList() {
     items.sort((a, b) => (a.order || 0) - (b.order || 0));
 
     if (items.length === 0) {
-        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Aucun produit. Cliquez sur "+ Nouveau produit" pour commencer.</div>';
+        list.innerHTML = `
+            <div style="grid-column: 1/-1; text-align:center; padding:60px 20px; color:var(--text-muted);">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom:16px; opacity:0.5;"><path d="M20 12V22H4V12M22 7H2V12H22V7ZM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+                <p style="font-size:16px; margin-bottom:8px;">Aucun produit</p>
+                <p style="font-size:14px;">Cliquez sur "Nouveau produit" pour commencer.</p>
+            </div>
+        `;
         return;
     }
 
     list.innerHTML = items.map((p, i) => `
-        <div class="product-item">
-            <div class="product-item__order-controls">
-                <button class="btn-icon btn-xs" onclick="moveProduct(${i}, -1)" ${i === 0 ? 'disabled' : ''} title="Monter">&#9650;</button>
-                <button class="btn-icon btn-xs" onclick="moveProduct(${i}, 1)" ${i === items.length - 1 ? 'disabled' : ''} title="Descendre">&#9660;</button>
-            </div>
-            <img src="${esc(p.image)}" alt="${esc(p.title)}" class="product-item__image"
-                 onerror="this.style.background='var(--bg-section)';this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22%3E%3Crect fill=%22%23F5EFE6%22 width=%2264%22 height=%2264%22/%3E%3Ctext x=%2232%22 y=%2236%22 text-anchor=%22middle%22 fill=%22%23C9A84C%22 font-size=%2212%22%3EPhoto%3C/text%3E%3C/svg%3E'">
-            <div class="product-item__info">
-                <div class="product-item__name">${esc(p.title)}</div>
-                <div class="product-item__meta">
-                    <span class="product-item__price">${esc(p.price)}</span>
-                    <span class="product-item__badge">${esc(p.badge)}</span>
+        <div class="product-card">
+            <img src="${esc(p.image || p.images?.[0] || '')}" alt="${esc(p.title)}" class="product-card__image"
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22180%22%3E%3Crect fill=%22%23F5EFE6%22 width=%22200%22 height=%22180%22/%3E%3Ctext x=%22100%22 y=%2295%22 text-anchor=%22middle%22 fill=%22%23C9A84C%22 font-size=%2214%22%3EPhoto%3C/text%3E%3C/svg%3E'">
+            <div class="product-card__body">
+                <div class="product-card__title">${esc(p.title)}</div>
+                <div class="product-card__price">${esc(p.price)}</div>
+                ${p.badge ? `<div class="product-card__badge">${esc(p.badge)}</div>` : ''}
+                <div class="product-card__actions">
+                    <button class="btn btn-outline btn-sm" onclick="editProduct(${i})">Modifier</button>
+                    <button class="btn btn-danger-outline btn-sm" onclick="confirmDeleteProduct(${i})">Supprimer</button>
                 </div>
-            </div>
-            <div class="product-item__actions">
-                <button class="btn btn-outline btn-sm" onclick="editProduct(${i})">Modifier</button>
-                <button class="btn btn-danger-outline btn-sm" onclick="confirmDelete(${i})">Supprimer</button>
             </div>
         </div>
     `).join('');
 }
 
-function editProduct(index) {
-    openProductModal(index);
-}
-
-// ============================================
-// PRODUITS — REORDER
-// ============================================
-function moveProduct(index, direction) {
-    const items = productsData.items;
-    const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= items.length) return;
-
-    [items[index], items[newIndex]] = [items[newIndex], items[index]];
-
-    // Recalculer les ordres
-    items.forEach((item, i) => { item.order = i + 1; });
-
-    renderProductsList();
-    saveProducts();
-}
-
-// ============================================
-// PRODUITS — MODALE EDITION
-// ============================================
 function initProductModal() {
-    const modal = document.getElementById('productModal');
     document.getElementById('addProductBtn').addEventListener('click', () => openProductModal(-1));
     document.getElementById('modalClose').addEventListener('click', closeProductModal);
     document.getElementById('modalCancel').addEventListener('click', closeProductModal);
     document.getElementById('modalSave').addEventListener('click', saveProduct);
     document.getElementById('addCompositionBtn').addEventListener('click', addCompositionItem);
-
-    document.getElementById('imageUpload').addEventListener('click', () => document.getElementById('imageInput').click());
-    document.getElementById('imageInput').addEventListener('change', handleImageUpload);
-    modal.addEventListener('click', e => { if (e.target === modal) closeProductModal(); });
+    document.getElementById('addProductImageBtn').addEventListener('click', () => document.getElementById('productImageInput').click());
+    document.getElementById('productImageInput').addEventListener('change', handleProductImagesUpload);
+    document.getElementById('productModal').addEventListener('click', e => { if (e.target.id === 'productModal') closeProductModal(); });
 }
 
 function openProductModal(index) {
     editingProductIndex = index;
-    pendingImageBase64 = null;
-    pendingImageName = null;
-
-    const preview = document.getElementById('imagePreview');
-    const placeholder = document.getElementById('imagePlaceholder');
+    pendingProductImages = [];
 
     if (index === -1) {
         document.getElementById('modalProductTitle').textContent = 'Nouveau produit';
@@ -214,8 +210,7 @@ function openProductModal(index) {
         document.getElementById('editBadge').value = '';
         document.getElementById('editDelay').value = 'Délai : 2 semaines maximum';
         document.getElementById('editWhatsapp').value = '';
-        preview.style.display = 'none';
-        placeholder.style.display = 'flex';
+        renderProductImagesGallery([]);
         renderCompositionList([]);
     } else {
         const p = productsData.items[index];
@@ -226,18 +221,12 @@ function openProductModal(index) {
         document.getElementById('editDelay').value = p.delay || '';
         document.getElementById('editWhatsapp').value = p.whatsappMessage || '';
 
-        if (p.image) {
-            preview.src = p.image;
-            preview.style.display = 'block';
-            placeholder.style.display = 'none';
-        } else {
-            preview.style.display = 'none';
-            placeholder.style.display = 'flex';
-        }
+        const images = p.images || (p.image ? [p.image] : []);
+        renderProductImagesGallery(images);
         renderCompositionList(p.composition || []);
     }
 
-    document.getElementById('imageInput').value = '';
+    document.getElementById('productImageInput').value = '';
     document.getElementById('productModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
@@ -245,6 +234,70 @@ function openProductModal(index) {
 function closeProductModal() {
     document.getElementById('productModal').style.display = 'none';
     document.body.style.overflow = '';
+}
+
+function renderProductImagesGallery(images) {
+    const gallery = document.getElementById('productImagesGallery');
+    const allImages = [...images, ...pendingProductImages.map(p => p.preview)];
+
+    if (allImages.length === 0) {
+        gallery.innerHTML = `
+            <div class="image-upload" onclick="document.getElementById('productImageInput').click()">
+                <div class="image-placeholder">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>Ajouter des images</span>
+                    <small>Format recommandé : 600x500px</small>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    gallery.innerHTML = allImages.map((img, i) => `
+        <div class="image-item ${i === 0 ? 'image-item--main' : ''}">
+            <img src="${esc(img)}" alt="Image ${i + 1}">
+            <button class="image-item__remove" onclick="removeProductImage(${i})" type="button">&times;</button>
+        </div>
+    `).join('');
+}
+
+function handleProductImagesUpload(e) {
+    const files = e.target.files;
+    if (!files.length) return;
+
+    Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            pendingProductImages.push({
+                preview: ev.target.result,
+                base64: ev.target.result.split(',')[1],
+                name: 'product-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9) + '-' + file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+            });
+
+            const currentImages = editingProductIndex >= 0
+                ? (productsData.items[editingProductIndex].images || [productsData.items[editingProductIndex].image].filter(Boolean))
+                : [];
+            renderProductImagesGallery(currentImages);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function removeProductImage(index) {
+    const currentImages = editingProductIndex >= 0
+        ? (productsData.items[editingProductIndex].images || [productsData.items[editingProductIndex].image].filter(Boolean))
+        : [];
+
+    if (index < currentImages.length) {
+        currentImages.splice(index, 1);
+        if (editingProductIndex >= 0) {
+            productsData.items[editingProductIndex].images = currentImages;
+        }
+    } else {
+        pendingProductImages.splice(index - currentImages.length, 1);
+    }
+
+    renderProductImagesGallery(currentImages);
 }
 
 function renderCompositionList(items) {
@@ -264,20 +317,6 @@ function addCompositionItem() {
     div.querySelector('input').focus();
 }
 
-function handleImageUpload(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-        document.getElementById('imagePreview').src = ev.target.result;
-        document.getElementById('imagePreview').style.display = 'block';
-        document.getElementById('imagePlaceholder').style.display = 'none';
-        pendingImageBase64 = ev.target.result.split(',')[1];
-        pendingImageName = 'product-' + Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    };
-    reader.readAsDataURL(file);
-}
-
 async function saveProduct() {
     const title = document.getElementById('editTitle').value.trim();
     const price = document.getElementById('editPrice').value.trim();
@@ -287,19 +326,24 @@ async function saveProduct() {
         return;
     }
 
+    showLoader();
+
     const badge = document.getElementById('editBadge').value.trim();
     const delay = document.getElementById('editDelay').value.trim();
     const whatsapp = document.getElementById('editWhatsapp').value.trim();
     const composition = Array.from(document.querySelectorAll('#compositionList .composition-item input'))
         .map(i => i.value.trim()).filter(v => v);
 
-    showLoader();
+    // Get current images
+    let images = editingProductIndex >= 0
+        ? (productsData.items[editingProductIndex].images || [productsData.items[editingProductIndex].image].filter(Boolean))
+        : [];
 
-    let imagePath = editingProductIndex >= 0 ? productsData.items[editingProductIndex].image : '';
-
-    if (pendingImageBase64 && pendingImageName) {
+    // Upload new images
+    for (const pending of pendingProductImages) {
         try {
-            imagePath = await uploadFile('images/' + pendingImageName, pendingImageBase64);
+            const path = await uploadFile('images/' + pending.name, pending.base64);
+            images.push(path);
         } catch (err) {
             hideLoader();
             showToast('Erreur upload image : ' + err.message, 'error');
@@ -308,7 +352,9 @@ async function saveProduct() {
     }
 
     const product = {
-        title, price, badge, delay, image: imagePath,
+        title, price, badge, delay,
+        image: images[0] || '',
+        images: images,
         order: editingProductIndex >= 0 ? productsData.items[editingProductIndex].order : (productsData.items.length + 1),
         composition,
         whatsappMessage: whatsapp || 'Bonjour, je suis intéressée par ' + title + '.'
@@ -339,159 +385,421 @@ async function saveProducts() {
     }
 }
 
-// ============================================
-// PRODUITS — SUPPRESSION AVEC CONFIRMATION
-// ============================================
-function initDeleteModal() {
-    document.getElementById('deleteCancelBtn').addEventListener('click', closeDeleteModal);
-    document.getElementById('deleteConfirmBtn').addEventListener('click', executeDelete);
-    document.getElementById('deleteModal').addEventListener('click', e => {
-        if (e.target.id === 'deleteModal') closeDeleteModal();
+function editProduct(index) {
+    openProductModal(index);
+}
+
+function confirmDeleteProduct(index) {
+    const p = productsData.items[index];
+    openDeleteModal('"' + p.title + '"', async () => {
+        showLoader();
+        productsData.items.splice(index, 1);
+        productsData.items.forEach((item, i) => { item.order = i + 1; });
+        const ok = await saveProducts();
+        hideLoader();
+        if (ok) {
+            renderProductsList();
+            showToast('Produit supprimé.');
+        }
     });
 }
 
-function confirmDelete(index) {
-    deleteTargetIndex = index;
-    const p = productsData.items[index];
-    document.getElementById('deleteProductName').textContent = '"' + p.title + '" — ' + p.price;
-    document.getElementById('deleteModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+// ============================================
+// TEXTES DU SITE
+// ============================================
+function renderTextsForm() {
+    const c = siteContent;
+    document.getElementById('textsForm').innerHTML = `
+        ${formCard('Section Accueil (Hero)', 'hero', `
+            ${field('txt_hero_title', 'Titre principal', c.hero?.title)}
+            ${field('txt_hero_subtitle', 'Sous-titre', c.hero?.subtitle)}
+            ${textarea('txt_hero_tagline', "Phrase d'accroche", c.hero?.tagline)}
+            ${field('txt_hero_cta', 'Texte du bouton', c.hero?.cta)}
+        `)}
+
+        ${formCard('Section Présentation', 'presentation', `
+            ${field('txt_pres_title', 'Titre', c.presentation?.title)}
+            ${textarea('txt_pres_text', 'Texte de présentation', c.presentation?.text)}
+            <div class="form-group">
+                <label>Points forts (3 éléments)</label>
+                <div class="list-editor" id="featuresEditor">
+                    ${(c.presentation?.features || ['', '', '']).map((f, i) => `
+                        <div class="list-editor-item">
+                            <input type="text" value="${esc(f)}" placeholder="Point fort ${i + 1}">
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `)}
+
+        ${formCard('Section Produits', 'products', `
+            ${field('txt_prod_title', 'Titre de la section', c.products?.title)}
+            ${textarea('txt_prod_subtitle', 'Sous-titre', c.products?.subtitle)}
+        `)}
+
+        ${formCard('Section Événements', 'events-text', `
+            ${field('txt_events_title', 'Titre', c.events?.title)}
+            ${textarea('txt_events_subtitle', 'Sous-titre', c.events?.subtitle)}
+        `)}
+
+        ${formCard('Section Témoignages', 'testimonials-text', `
+            ${field('txt_test_title', 'Titre', c.testimonials?.title)}
+            ${textarea('txt_test_subtitle', 'Sous-titre', c.testimonials?.subtitle)}
+        `)}
+
+        ${formCard('Section Devis', 'quote', `
+            ${field('txt_quote_title', 'Titre', c.quote?.title)}
+            ${field('txt_quote_subtitle', 'Sous-titre', c.quote?.subtitle)}
+            ${textarea('txt_quote_success', 'Message de confirmation', c.quote?.successMessage)}
+        `)}
+
+        ${formCard('Pied de page', 'footer', `
+            ${field('txt_footer_brand', 'Nom de la marque', c.footer?.brand)}
+            ${field('txt_footer_tagline', 'Slogan', c.footer?.tagline)}
+            ${field('txt_footer_copyright', 'Copyright', c.footer?.copyright)}
+        `)}
+    `;
+
+    document.getElementById('saveTextsBtn').addEventListener('click', saveTexts);
 }
 
-function closeDeleteModal() {
-    document.getElementById('deleteModal').style.display = 'none';
-    document.body.style.overflow = '';
-    deleteTargetIndex = -1;
-}
-
-async function executeDelete() {
-    if (deleteTargetIndex < 0) return;
-    closeDeleteModal();
+async function saveTexts() {
     showLoader();
 
-    productsData.items.splice(deleteTargetIndex, 1);
-    productsData.items.forEach((item, i) => { item.order = i + 1; });
+    siteContent.hero = {
+        ...siteContent.hero,
+        title: val('txt_hero_title'),
+        subtitle: val('txt_hero_subtitle'),
+        tagline: val('txt_hero_tagline'),
+        cta: val('txt_hero_cta')
+    };
 
-    const ok = await saveProducts();
-    hideLoader();
-    if (ok) {
-        renderProductsList();
-        showToast('Produit supprimé.');
+    siteContent.presentation = {
+        ...siteContent.presentation,
+        title: val('txt_pres_title'),
+        text: val('txt_pres_text'),
+        features: Array.from(document.querySelectorAll('#featuresEditor input')).map(i => i.value.trim()).filter(v => v)
+    };
+
+    siteContent.products = {
+        ...siteContent.products,
+        title: val('txt_prod_title'),
+        subtitle: val('txt_prod_subtitle')
+    };
+
+    siteContent.events = {
+        ...siteContent.events,
+        title: val('txt_events_title'),
+        subtitle: val('txt_events_subtitle')
+    };
+
+    siteContent.testimonials = {
+        ...siteContent.testimonials,
+        title: val('txt_test_title'),
+        subtitle: val('txt_test_subtitle')
+    };
+
+    siteContent.quote = {
+        title: val('txt_quote_title'),
+        subtitle: val('txt_quote_subtitle'),
+        successMessage: val('txt_quote_success')
+    };
+
+    siteContent.footer = {
+        brand: val('txt_footer_brand'),
+        tagline: val('txt_footer_tagline'),
+        copyright: val('txt_footer_copyright')
+    };
+
+    try {
+        await saveFile('data/site-content.json', JSON.stringify(siteContent, null, 2));
+        showToast('Textes enregistrés !');
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
     }
+    hideLoader();
 }
 
 // ============================================
-// APPARENCE (logos, images)
+// COULEURS
 // ============================================
-function renderAppearanceForm() {
-    const c = siteContent;
-    const headerDisplay = c.hero?.headerDisplay || 'text';
-    const sidebarDisplay = c.hero?.sidebarDisplay || 'text';
+function renderColorsForm() {
+    const d = siteDesign;
+    const c = d.colors || {};
+    const sc = d.sectionColors || {};
 
-    document.getElementById('appearanceForm').innerHTML = `
-        <div class="form-card">
-            <div class="form-card__header" onclick="toggleCard(this)">
-                <h3>Logo du Header</h3>
-                <span class="form-card__toggle">&#9660;</span>
+    document.getElementById('colorsForm').innerHTML = `
+        ${formCard('Couleurs Principales', 'colors-main', `
+            <div class="form-row">
+                ${colorField('color_primary', 'Couleur Or (principale)', c.primary || '#C9A84C')}
+                ${colorField('color_primaryLight', 'Or Clair', c.primaryLight || '#E8D5A3')}
             </div>
-            <div class="form-card__body">
+            <div class="form-row">
+                ${colorField('color_background', 'Fond Principal', c.background || '#FAF6F0')}
+                ${colorField('color_backgroundAlt', 'Fond Alternatif', c.backgroundAlt || '#F5EFE6')}
+            </div>
+            <div class="form-row">
+                ${colorField('color_text', 'Texte Principal', c.text || '#2C2C2C')}
+                ${colorField('color_textLight', 'Texte Secondaire', c.textLight || '#5A5A5A')}
+            </div>
+        `)}
+
+        ${formCard('Couleur par Section', 'colors-sections', `
+            <p class="form-hint" style="margin-bottom:16px;">Personnalisez le fond et la couleur du texte de chaque section.</p>
+
+            <div class="section-divider"><span>Hero</span></div>
+            <div class="form-row">
+                ${colorField('sc_hero_bg', 'Fond', sc.hero?.bg || '#FAF6F0')}
+                ${colorField('sc_hero_text', 'Texte', sc.hero?.text || '#2C2C2C')}
+            </div>
+
+            <div class="section-divider"><span>Présentation</span></div>
+            <div class="form-row">
+                ${colorField('sc_presentation_bg', 'Fond', sc.presentation?.bg || '#F5EFE6')}
+                ${colorField('sc_presentation_text', 'Texte', sc.presentation?.text || '#2C2C2C')}
+            </div>
+
+            <div class="section-divider"><span>Produits</span></div>
+            <div class="form-row">
+                ${colorField('sc_products_bg', 'Fond', sc.products?.bg || '#FAF6F0')}
+                ${colorField('sc_products_text', 'Texte', sc.products?.text || '#2C2C2C')}
+            </div>
+
+            <div class="section-divider"><span>Événements</span></div>
+            <div class="form-row">
+                ${colorField('sc_events_bg', 'Fond', sc.events?.bg || '#F5EFE6')}
+                ${colorField('sc_events_text', 'Texte', sc.events?.text || '#2C2C2C')}
+            </div>
+
+            <div class="section-divider"><span>Témoignages</span></div>
+            <div class="form-row">
+                ${colorField('sc_testimonials_bg', 'Fond', sc.testimonials?.bg || '#FAF6F0')}
+                ${colorField('sc_testimonials_text', 'Texte', sc.testimonials?.text || '#2C2C2C')}
+            </div>
+
+            <div class="section-divider"><span>Devis</span></div>
+            <div class="form-row">
+                ${colorField('sc_quote_bg', 'Fond', sc.quote?.bg || '#F5EFE6')}
+                ${colorField('sc_quote_text', 'Texte', sc.quote?.text || '#2C2C2C')}
+            </div>
+
+            <div class="section-divider"><span>Contact</span></div>
+            <div class="form-row">
+                ${colorField('sc_contact_bg', 'Fond', sc.contact?.bg || '#FAF6F0')}
+                ${colorField('sc_contact_text', 'Texte', sc.contact?.text || '#2C2C2C')}
+            </div>
+
+            <div class="section-divider"><span>Footer</span></div>
+            <div class="form-row">
+                ${colorField('sc_footer_bg', 'Fond', sc.footer?.bg || '#2C2C2C')}
+                ${colorField('sc_footer_text', 'Texte', sc.footer?.text || '#FAF6F0')}
+            </div>
+        `)}
+    `;
+
+    syncAllColorInputs();
+    document.getElementById('saveColorsBtn').addEventListener('click', saveColors);
+}
+
+async function saveColors() {
+    showLoader();
+
+    siteDesign.colors = {
+        primary: val('color_primary_hex') || '#C9A84C',
+        primaryLight: val('color_primaryLight_hex') || '#E8D5A3',
+        primaryDark: siteDesign.colors?.primaryDark || '#8B6914',
+        background: val('color_background_hex') || '#FAF6F0',
+        backgroundAlt: val('color_backgroundAlt_hex') || '#F5EFE6',
+        text: val('color_text_hex') || '#2C2C2C',
+        textLight: val('color_textLight_hex') || '#5A5A5A'
+    };
+
+    siteDesign.sectionColors = {
+        hero: { bg: val('sc_hero_bg_hex'), text: val('sc_hero_text_hex') },
+        presentation: { bg: val('sc_presentation_bg_hex'), text: val('sc_presentation_text_hex') },
+        products: { bg: val('sc_products_bg_hex'), text: val('sc_products_text_hex') },
+        events: { bg: val('sc_events_bg_hex'), text: val('sc_events_text_hex') },
+        testimonials: { bg: val('sc_testimonials_bg_hex'), text: val('sc_testimonials_text_hex') },
+        quote: { bg: val('sc_quote_bg_hex'), text: val('sc_quote_text_hex') },
+        contact: { bg: val('sc_contact_bg_hex'), text: val('sc_contact_text_hex') },
+        footer: { bg: val('sc_footer_bg_hex'), text: val('sc_footer_text_hex') }
+    };
+
+    try {
+        await saveFile('data/site-design.json', JSON.stringify(siteDesign, null, 2));
+        showToast('Couleurs enregistrées !');
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+    hideLoader();
+}
+
+// ============================================
+// POLICES
+// ============================================
+function renderFontsForm() {
+    const d = siteDesign;
+    const fonts = d.fonts || { title: 'Cormorant Garamond', body: 'Montserrat' };
+
+    document.getElementById('fontsForm').innerHTML = `
+        ${formCard('Police des Titres', 'font-title', `
+            <p class="form-hint" style="margin-bottom:16px;">Choisissez la police pour tous les titres du site.</p>
+            <div class="font-selector" id="fontTitleSelector">
+                ${AVAILABLE_FONTS.filter(f => f.category === 'serif').map(f => `
+                    <label class="font-option ${fonts.title === f.name ? 'selected' : ''}" onclick="selectFont(this, 'title')">
+                        <input type="radio" name="fontTitle" value="${f.name}" ${fonts.title === f.name ? 'checked' : ''}>
+                        <div class="font-option__name">${f.name}</div>
+                        <div class="font-option__preview" style="font-family: '${f.name}', serif;">${f.preview}</div>
+                    </label>
+                `).join('')}
+            </div>
+        `)}
+
+        ${formCard('Police du Texte', 'font-body', `
+            <p class="form-hint" style="margin-bottom:16px;">Choisissez la police pour le texte courant.</p>
+            <div class="font-selector" id="fontBodySelector">
+                ${AVAILABLE_FONTS.filter(f => f.category === 'sans-serif').map(f => `
+                    <label class="font-option ${fonts.body === f.name ? 'selected' : ''}" onclick="selectFont(this, 'body')">
+                        <input type="radio" name="fontBody" value="${f.name}" ${fonts.body === f.name ? 'checked' : ''}>
+                        <div class="font-option__name">${f.name}</div>
+                        <div class="font-option__preview" style="font-family: '${f.name}', sans-serif;">${f.preview}</div>
+                    </label>
+                `).join('')}
+            </div>
+        `)}
+
+        ${formCard('Aperçu', 'font-preview', `
+            <div class="preview-box">
+                <div class="preview-box__label">Aperçu des polices</div>
+                <h3 style="font-family: '${fonts.title}', serif; font-size: 28px; margin-bottom: 12px; color: var(--gold);">Perle de Fès</h3>
+                <p style="font-family: '${fonts.body}', sans-serif; font-size: 15px; color: var(--text-light);">
+                    L'art marocain au service de vos événements. Créations artisanales uniques pour mariages et célébrations.
+                </p>
+            </div>
+        `)}
+    `;
+
+    document.getElementById('saveFontsBtn').addEventListener('click', saveFonts);
+}
+
+function selectFont(label, type) {
+    const selector = label.closest('.font-selector');
+    selector.querySelectorAll('.font-option').forEach(o => o.classList.remove('selected'));
+    label.classList.add('selected');
+    label.querySelector('input').checked = true;
+}
+
+async function saveFonts() {
+    showLoader();
+
+    siteDesign.fonts = {
+        title: document.querySelector('input[name="fontTitle"]:checked')?.value || 'Cormorant Garamond',
+        body: document.querySelector('input[name="fontBody"]:checked')?.value || 'Montserrat'
+    };
+
+    try {
+        await saveFile('data/site-design.json', JSON.stringify(siteDesign, null, 2));
+        showToast('Polices enregistrées !');
+        renderFontsForm(); // Refresh preview
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+    hideLoader();
+}
+
+// ============================================
+// IMAGES
+// ============================================
+function renderImagesForm() {
+    const c = siteContent;
+    const d = siteDesign;
+
+    document.getElementById('imagesForm').innerHTML = `
+        ${formCard('Logo du Site', 'images-logo', `
+            <div class="form-row">
                 <div class="form-group">
-                    <label>Afficher dans le header</label>
-                    <div class="radio-group" id="headerDisplayRadio">
-                        <label class="radio-option ${headerDisplay === 'text' ? 'selected' : ''}" onclick="selectRadio(this, 'headerDisplay')">
-                            <input type="radio" name="headerDisplay" value="text" ${headerDisplay === 'text' ? 'checked' : ''}>
-                            Nom du site uniquement
-                        </label>
-                        <label class="radio-option ${headerDisplay === 'logo' ? 'selected' : ''}" onclick="selectRadio(this, 'headerDisplay')">
-                            <input type="radio" name="headerDisplay" value="logo" ${headerDisplay === 'logo' ? 'checked' : ''}>
-                            Logo uniquement
-                        </label>
-                        <label class="radio-option ${headerDisplay === 'both' ? 'selected' : ''}" onclick="selectRadio(this, 'headerDisplay')">
-                            <input type="radio" name="headerDisplay" value="both" ${headerDisplay === 'both' ? 'checked' : ''}>
-                            Logo + Nom
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Image du logo</label>
+                    <label>Logo</label>
                     <div class="image-upload image-upload--logo" id="logoUpload">
                         <img src="${esc(c.hero?.logo || '')}" alt="Logo" class="image-preview" id="logoPreview" style="display:${c.hero?.logo ? 'block' : 'none'}; object-fit:contain; padding:8px;">
                         <div class="image-placeholder" id="logoPlaceholder" style="display:${c.hero?.logo ? 'none' : 'flex'};">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                             <span>Choisir un logo</span>
                         </div>
                         <input type="file" accept="image/*" id="logoInput" style="display:none;">
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="form-card">
-            <div class="form-card__header" onclick="toggleCard(this)">
-                <h3>Logo de la Sidebar (mobile)</h3>
-                <span class="form-card__toggle">&#9660;</span>
-            </div>
-            <div class="form-card__body">
                 <div class="form-group">
-                    <label>Afficher dans la sidebar mobile</label>
-                    <div class="radio-group" id="sidebarDisplayRadio">
-                        <label class="radio-option ${sidebarDisplay === 'text' ? 'selected' : ''}" onclick="selectRadio(this, 'sidebarDisplay')">
-                            <input type="radio" name="sidebarDisplay" value="text" ${sidebarDisplay === 'text' ? 'checked' : ''}>
-                            Nom du site uniquement
-                        </label>
-                        <label class="radio-option ${sidebarDisplay === 'logo' ? 'selected' : ''}" onclick="selectRadio(this, 'sidebarDisplay')">
-                            <input type="radio" name="sidebarDisplay" value="logo" ${sidebarDisplay === 'logo' ? 'checked' : ''}>
-                            Logo uniquement
-                        </label>
-                        <label class="radio-option ${sidebarDisplay === 'both' ? 'selected' : ''}" onclick="selectRadio(this, 'sidebarDisplay')">
-                            <input type="radio" name="sidebarDisplay" value="both" ${sidebarDisplay === 'both' ? 'checked' : ''}>
-                            Logo + Nom
-                        </label>
-                    </div>
+                    <label>Affichage dans le header</label>
+                    <select id="headerDisplay">
+                        <option value="text" ${c.hero?.headerDisplay === 'text' ? 'selected' : ''}>Nom du site uniquement</option>
+                        <option value="logo" ${c.hero?.headerDisplay === 'logo' ? 'selected' : ''}>Logo uniquement</option>
+                        <option value="both" ${c.hero?.headerDisplay === 'both' ? 'selected' : ''}>Logo + Nom</option>
+                    </select>
                 </div>
             </div>
-        </div>
+        `)}
 
-        <div class="form-card">
-            <div class="form-card__header" onclick="toggleCard(this)">
-                <h3>Image de fond (Hero)</h3>
-                <span class="form-card__toggle">&#9660;</span>
-            </div>
-            <div class="form-card__body">
-                <div class="form-group">
-                    <label>Image d'arrière-plan de la section d'accueil</label>
-                    <div class="image-upload" id="heroImageUpload">
-                        <img src="${esc(c.hero?.backgroundImage || '')}" alt="" class="image-preview" id="heroImagePreview" style="display:${c.hero?.backgroundImage ? 'block' : 'none'};">
-                        <div class="image-placeholder" id="heroImagePlaceholder" style="display:${c.hero?.backgroundImage ? 'none' : 'flex'};">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                            <span>Choisir une image</span>
-                            <small>Format recommandé : 1920x900px</small>
-                        </div>
-                        <input type="file" accept="image/*" id="heroImageInput" style="display:none;">
+        ${formCard('Image de Fond (Hero)', 'images-hero', `
+            <div class="form-group">
+                <label>Image d'arrière-plan de la section d'accueil</label>
+                <div class="image-upload image-upload--wide" id="heroImageUpload">
+                    <img src="${esc(c.hero?.backgroundImage || '')}" alt="" class="image-preview" id="heroImagePreview" style="display:${c.hero?.backgroundImage ? 'block' : 'none'};">
+                    <div class="image-placeholder" id="heroImagePlaceholder" style="display:${c.hero?.backgroundImage ? 'none' : 'flex'};">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>Choisir une image de fond</span>
+                        <small>Format recommandé : 1920x900px</small>
                     </div>
+                    <input type="file" accept="image/*" id="heroImageInput" style="display:none;">
                 </div>
             </div>
-        </div>
+        `)}
+
+        ${formCard('Textures & Motifs', 'images-textures', `
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="texture_hero_enabled" ${d.textures?.hero?.enabled !== false ? 'checked' : ''}>
+                    <span>Texture zellige dans le Hero</span>
+                </label>
+                <div class="slider-group">
+                    <label>Opacité <span id="texture_hero_val">${Math.round((d.textures?.hero?.opacity || 0.12) * 100)}%</span></label>
+                    <input type="range" id="texture_hero_opacity" min="0" max="30" value="${Math.round((d.textures?.hero?.opacity || 0.12) * 100)}" oninput="document.getElementById('texture_hero_val').textContent = this.value + '%'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="texture_presentation_enabled" ${d.textures?.presentation?.enabled !== false ? 'checked' : ''}>
+                    <span>Texture dans la section Présentation</span>
+                </label>
+                <div class="slider-group">
+                    <label>Opacité <span id="texture_presentation_val">${Math.round((d.textures?.presentation?.opacity || 0.10) * 100)}%</span></label>
+                    <input type="range" id="texture_presentation_opacity" min="0" max="30" value="${Math.round((d.textures?.presentation?.opacity || 0.10) * 100)}" oninput="document.getElementById('texture_presentation_val').textContent = this.value + '%'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="texture_events_enabled" ${d.textures?.events?.enabled !== false ? 'checked' : ''}>
+                    <span>Texture dans la section Événements</span>
+                </label>
+                <div class="slider-group">
+                    <label>Opacité <span id="texture_events_val">${Math.round((d.textures?.events?.opacity || 0.12) * 100)}%</span></label>
+                    <input type="range" id="texture_events_opacity" min="0" max="30" value="${Math.round((d.textures?.events?.opacity || 0.12) * 100)}" oninput="document.getElementById('texture_events_val').textContent = this.value + '%'">
+                </div>
+            </div>
+        `)}
     `;
 
-    // Listeners pour upload logo
+    // Event listeners
     document.getElementById('logoUpload').addEventListener('click', () => document.getElementById('logoInput').click());
-    document.getElementById('logoInput').addEventListener('change', e => handleGenericImageUpload(e, 'logoPreview', 'logoPlaceholder', '_logo'));
+    document.getElementById('logoInput').addEventListener('change', e => handleImageUpload(e, 'logoPreview', 'logoPlaceholder', '_logo'));
     document.getElementById('heroImageUpload').addEventListener('click', () => document.getElementById('heroImageInput').click());
-    document.getElementById('heroImageInput').addEventListener('change', e => handleGenericImageUpload(e, 'heroImagePreview', 'heroImagePlaceholder', '_hero'));
+    document.getElementById('heroImageInput').addEventListener('change', e => handleImageUpload(e, 'heroImagePreview', 'heroImagePlaceholder', '_heroImage'));
 
-    document.getElementById('saveAppearanceBtn').addEventListener('click', saveAppearance);
+    document.getElementById('saveImagesBtn').addEventListener('click', saveImages);
 }
 
-function selectRadio(label, group) {
-    label.closest('.radio-group').querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
-    label.classList.add('selected');
-    label.querySelector('input').checked = true;
-}
-
-let pendingUploads = {};
-
-function handleGenericImageUpload(e, previewId, placeholderId, key) {
+function handleImageUpload(e, previewId, placeholderId, key) {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -507,11 +815,8 @@ function handleGenericImageUpload(e, previewId, placeholderId, key) {
     reader.readAsDataURL(file);
 }
 
-async function saveAppearance() {
+async function saveImages() {
     showLoader();
-
-    const headerDisplay = document.querySelector('input[name="headerDisplay"]:checked')?.value || 'text';
-    const sidebarDisplay = document.querySelector('input[name="sidebarDisplay"]:checked')?.value || 'text';
 
     let logoPath = siteContent.hero?.logo || '';
     let heroImagePath = siteContent.hero?.backgroundImage || '';
@@ -521,9 +826,9 @@ async function saveAppearance() {
             logoPath = await uploadFile('images/' + pendingUploads._logo.name, pendingUploads._logo.base64);
             delete pendingUploads._logo;
         }
-        if (pendingUploads._hero) {
-            heroImagePath = await uploadFile('images/' + pendingUploads._hero.name, pendingUploads._hero.base64);
-            delete pendingUploads._hero;
+        if (pendingUploads._heroImage) {
+            heroImagePath = await uploadFile('images/' + pendingUploads._heroImage.name, pendingUploads._heroImage.base64);
+            delete pendingUploads._heroImage;
         }
     } catch (err) {
         hideLoader();
@@ -535,13 +840,30 @@ async function saveAppearance() {
         ...siteContent.hero,
         logo: logoPath,
         backgroundImage: heroImagePath,
-        headerDisplay,
-        sidebarDisplay
+        headerDisplay: document.getElementById('headerDisplay').value
+    };
+
+    siteDesign.textures = {
+        hero: {
+            enabled: document.getElementById('texture_hero_enabled').checked,
+            opacity: parseInt(document.getElementById('texture_hero_opacity').value) / 100
+        },
+        presentation: {
+            enabled: document.getElementById('texture_presentation_enabled').checked,
+            opacity: parseInt(document.getElementById('texture_presentation_opacity').value) / 100
+        },
+        events: {
+            enabled: document.getElementById('texture_events_enabled').checked,
+            opacity: parseInt(document.getElementById('texture_events_opacity').value) / 100
+        }
     };
 
     try {
-        await saveFile('data/site-content.json', JSON.stringify(siteContent, null, 2));
-        showToast('Apparence enregistrée !');
+        await Promise.all([
+            saveFile('data/site-content.json', JSON.stringify(siteContent, null, 2)),
+            saveFile('data/site-design.json', JSON.stringify(siteDesign, null, 2))
+        ]);
+        showToast('Images enregistrées !');
     } catch (err) {
         showToast('Erreur: ' + err.message, 'error');
     }
@@ -549,69 +871,399 @@ async function saveAppearance() {
 }
 
 // ============================================
-// TEXTES DU SITE
+// EVENEMENTS
 // ============================================
-function renderTextsForm() {
-    const c = siteContent;
-    document.getElementById('textsForm').innerHTML = `
-        ${textCard('Section Accueil', `
-            ${field('txt_hero_title', 'Titre principal', c.hero?.title)}
-            ${field('txt_hero_subtitle', 'Sous-titre', c.hero?.subtitle)}
-            ${textarea('txt_hero_tagline', "Phrase d'accroche", c.hero?.tagline)}
-            ${field('txt_hero_cta', 'Texte du bouton', c.hero?.cta)}
-        `)}
-        ${textCard('Section Présentation', `
-            ${field('txt_pres_title', 'Titre', c.presentation?.title)}
-            ${textarea('txt_pres_text', 'Texte de présentation', c.presentation?.text)}
-            <div class="form-group">
-                <label>3 POINTS FORTS</label>
-                <div class="list-editor" id="featuresEditor">
-                    ${(c.presentation?.features || []).map(f => `<div class="list-editor-item"><input type="text" value="${esc(f)}"></div>`).join('')}
-                </div>
+function renderEventsForm() {
+    const events = siteContent.events?.cards || [
+        { title: 'Mariages', description: 'Des créations uniques pour le plus beau jour de votre vie.', icon: 'heart' },
+        { title: 'Henna Day', description: 'Célébrez la tradition avec élégance.', icon: 'star' },
+        { title: 'Baby Shower', description: 'Accueillez bébé avec des cadeaux raffinés.', icon: 'gift' }
+    ];
+
+    document.getElementById('eventsForm').innerHTML = `
+        ${formCard('Cartes Événements', 'events-cards', `
+            <p class="form-hint" style="margin-bottom:16px;">Configurez les 3 types d'événements affichés sur le site.</p>
+            <div class="events-grid" id="eventsCardsEditor">
+                ${events.map((ev, i) => `
+                    <div class="event-card-editor">
+                        <div class="event-card-editor__header">
+                            <span class="event-card-editor__title">Événement ${i + 1}</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Titre</label>
+                            <input type="text" id="event_${i}_title" value="${esc(ev.title || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="event_${i}_desc" rows="2">${esc(ev.description || '')}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Icône</label>
+                            <select id="event_${i}_icon">
+                                <option value="heart" ${ev.icon === 'heart' ? 'selected' : ''}>Coeur</option>
+                                <option value="star" ${ev.icon === 'star' ? 'selected' : ''}>Étoile</option>
+                                <option value="gift" ${ev.icon === 'gift' ? 'selected' : ''}>Cadeau</option>
+                                <option value="cake" ${ev.icon === 'cake' ? 'selected' : ''}>Gâteau</option>
+                                <option value="ring" ${ev.icon === 'ring' ? 'selected' : ''}>Bague</option>
+                            </select>
+                        </div>
+                    </div>
+                `).join('')}
             </div>
-        `)}
-        ${textCard('Section Produits (en-tête)', `
-            ${field('txt_prod_title', 'Titre', c.products?.title)}
-            ${textarea('txt_prod_subtitle', 'Sous-titre', c.products?.subtitle)}
-        `)}
-        ${textCard('Section Devis', `
-            ${field('txt_quote_title', 'Titre', c.quote?.title)}
-            ${field('txt_quote_subtitle', 'Sous-titre', c.quote?.subtitle)}
-            ${textarea('txt_quote_success', 'Message de confirmation', c.quote?.successMessage)}
-        `)}
-        ${textCard('Pied de page', `
-            ${field('txt_footer_brand', 'Nom de la marque', c.footer?.brand)}
-            ${field('txt_footer_tagline', 'Slogan', c.footer?.tagline)}
-            ${field('txt_footer_copyright', 'Copyright', c.footer?.copyright)}
         `)}
     `;
 
-    document.getElementById('saveTextsBtn').onclick = saveTexts;
+    document.getElementById('saveEventsBtn').addEventListener('click', saveEvents);
 }
 
-async function saveTexts() {
+async function saveEvents() {
     showLoader();
 
-    siteContent.hero = {
-        ...siteContent.hero,
-        title: val('txt_hero_title'),
-        subtitle: val('txt_hero_subtitle'),
-        tagline: val('txt_hero_tagline'),
-        cta: val('txt_hero_cta')
+    const cards = [0, 1, 2].map(i => ({
+        title: val(`event_${i}_title`),
+        description: val(`event_${i}_desc`),
+        icon: document.getElementById(`event_${i}_icon`).value
+    }));
+
+    siteContent.events = {
+        ...siteContent.events,
+        cards
     };
-    siteContent.presentation = {
-        ...siteContent.presentation,
-        title: val('txt_pres_title'),
-        text: val('txt_pres_text'),
-        features: Array.from(document.querySelectorAll('#featuresEditor input')).map(i => i.value.trim()).filter(v => v)
-    };
-    siteContent.products = { title: val('txt_prod_title'), subtitle: val('txt_prod_subtitle') };
-    siteContent.quote = { title: val('txt_quote_title'), subtitle: val('txt_quote_subtitle'), successMessage: val('txt_quote_success') };
-    siteContent.footer = { brand: val('txt_footer_brand'), tagline: val('txt_footer_tagline'), copyright: val('txt_footer_copyright') };
 
     try {
         await saveFile('data/site-content.json', JSON.stringify(siteContent, null, 2));
-        showToast('Textes enregistrés !');
+        showToast('Événements enregistrés !');
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+    hideLoader();
+}
+
+// ============================================
+// TEMOIGNAGES
+// ============================================
+function renderTestimonialsForm() {
+    const testimonials = siteContent.testimonials?.items || [];
+
+    document.getElementById('testimonialsForm').innerHTML = `
+        <div class="testimonials-list" id="testimonialsList">
+            ${testimonials.length === 0 ? `
+                <div style="text-align:center; padding:40px; color:var(--text-muted);">
+                    <p>Aucun témoignage. Cliquez sur "Ajouter un témoignage" pour commencer.</p>
+                </div>
+            ` : testimonials.map((t, i) => `
+                <div class="testimonial-card">
+                    <div class="testimonial-card__content">
+                        <div class="testimonial-card__text">"${esc(t.text)}"</div>
+                        <div class="testimonial-card__author">${esc(t.author)}</div>
+                        <div class="testimonial-card__event">${esc(t.event || '')}</div>
+                        <div class="testimonial-card__stars">${'★'.repeat(t.stars || 5)}${'☆'.repeat(5 - (t.stars || 5))}</div>
+                    </div>
+                    <div class="testimonial-card__actions">
+                        <button class="btn btn-outline btn-sm" onclick="editTestimonial(${i})">Modifier</button>
+                        <button class="btn btn-danger-outline btn-sm" onclick="confirmDeleteTestimonial(${i})">Supprimer</button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function initTestimonialModal() {
+    document.getElementById('addTestimonialBtn').addEventListener('click', () => openTestimonialModal(-1));
+    document.getElementById('testimonialModalClose').addEventListener('click', closeTestimonialModal);
+    document.getElementById('testimonialModalCancel').addEventListener('click', closeTestimonialModal);
+    document.getElementById('testimonialModalSave').addEventListener('click', saveTestimonial);
+    document.getElementById('testimonialModal').addEventListener('click', e => { if (e.target.id === 'testimonialModal') closeTestimonialModal(); });
+
+    // Stars selector
+    document.querySelectorAll('.star-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const stars = parseInt(btn.dataset.stars);
+            document.querySelectorAll('.star-btn').forEach((b, i) => {
+                b.classList.toggle('active', i < stars);
+            });
+        });
+    });
+}
+
+function openTestimonialModal(index) {
+    editingTestimonialIndex = index;
+
+    if (index === -1) {
+        document.getElementById('testimonialModalTitle').textContent = 'Nouveau témoignage';
+        document.getElementById('testimonialAuthor').value = '';
+        document.getElementById('testimonialText').value = '';
+        document.getElementById('testimonialEvent').value = '';
+        document.querySelectorAll('.star-btn').forEach(b => b.classList.add('active'));
+    } else {
+        const t = siteContent.testimonials?.items?.[index] || {};
+        document.getElementById('testimonialModalTitle').textContent = 'Modifier le témoignage';
+        document.getElementById('testimonialAuthor').value = t.author || '';
+        document.getElementById('testimonialText').value = t.text || '';
+        document.getElementById('testimonialEvent').value = t.event || '';
+        document.querySelectorAll('.star-btn').forEach((b, i) => {
+            b.classList.toggle('active', i < (t.stars || 5));
+        });
+    }
+
+    document.getElementById('testimonialModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeTestimonialModal() {
+    document.getElementById('testimonialModal').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+async function saveTestimonial() {
+    const author = document.getElementById('testimonialAuthor').value.trim();
+    const text = document.getElementById('testimonialText').value.trim();
+
+    if (!author || !text) {
+        alert('Le nom et le témoignage sont obligatoires.');
+        return;
+    }
+
+    showLoader();
+
+    const stars = document.querySelectorAll('.star-btn.active').length;
+    const event = document.getElementById('testimonialEvent').value.trim();
+
+    const testimonial = { author, text, stars, event };
+
+    if (!siteContent.testimonials) siteContent.testimonials = {};
+    if (!siteContent.testimonials.items) siteContent.testimonials.items = [];
+
+    if (editingTestimonialIndex === -1) {
+        siteContent.testimonials.items.push(testimonial);
+    } else {
+        siteContent.testimonials.items[editingTestimonialIndex] = testimonial;
+    }
+
+    try {
+        await saveFile('data/site-content.json', JSON.stringify(siteContent, null, 2));
+        closeTestimonialModal();
+        renderTestimonialsForm();
+        showToast('Témoignage enregistré !');
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+    hideLoader();
+}
+
+function editTestimonial(index) {
+    openTestimonialModal(index);
+}
+
+function confirmDeleteTestimonial(index) {
+    const t = siteContent.testimonials?.items?.[index];
+    openDeleteModal('Témoignage de "' + (t?.author || 'inconnu') + '"', async () => {
+        showLoader();
+        siteContent.testimonials.items.splice(index, 1);
+        try {
+            await saveFile('data/site-content.json', JSON.stringify(siteContent, null, 2));
+            renderTestimonialsForm();
+            showToast('Témoignage supprimé.');
+        } catch (err) {
+            showToast('Erreur: ' + err.message, 'error');
+        }
+        hideLoader();
+    });
+}
+
+// ============================================
+// ORNEMENTS
+// ============================================
+function renderOrnamentsForm() {
+    const d = siteDesign;
+    const orn = d.ornaments || {};
+    const tex = d.textures || {};
+
+    document.getElementById('ornamentsForm').innerHTML = `
+        ${formCard('Textures Orientales (Zellige)', 'orn-textures', `
+            <p class="form-hint" style="margin-bottom:16px;">Contrôlez les motifs orientaux de fond sur chaque section.</p>
+
+            <div class="texture-controls">
+                <div class="texture-row">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="tex_hero" ${tex.hero?.enabled !== false ? 'checked' : ''}>
+                        <span>Hero (accueil)</span>
+                    </label>
+                    <div class="slider-inline">
+                        <input type="range" id="tex_hero_opacity" min="5" max="50" value="${Math.round((tex.hero?.opacity || 0.25) * 100)}" oninput="document.getElementById('tex_hero_opacity_val').textContent = this.value + '%'">
+                        <span id="tex_hero_opacity_val">${Math.round((tex.hero?.opacity || 0.25) * 100)}%</span>
+                    </div>
+                </div>
+
+                <div class="texture-row">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="tex_presentation" ${tex.presentation?.enabled !== false ? 'checked' : ''}>
+                        <span>Présentation</span>
+                    </label>
+                    <div class="slider-inline">
+                        <input type="range" id="tex_presentation_opacity" min="5" max="50" value="${Math.round((tex.presentation?.opacity || 0.25) * 100)}" oninput="document.getElementById('tex_presentation_opacity_val').textContent = this.value + '%'">
+                        <span id="tex_presentation_opacity_val">${Math.round((tex.presentation?.opacity || 0.25) * 100)}%</span>
+                    </div>
+                </div>
+
+                <div class="texture-row">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="tex_products" ${tex.products?.enabled !== false ? 'checked' : ''}>
+                        <span>Produits</span>
+                    </label>
+                    <div class="slider-inline">
+                        <input type="range" id="tex_products_opacity" min="5" max="50" value="${Math.round((tex.products?.opacity || 0.20) * 100)}" oninput="document.getElementById('tex_products_opacity_val').textContent = this.value + '%'">
+                        <span id="tex_products_opacity_val">${Math.round((tex.products?.opacity || 0.20) * 100)}%</span>
+                    </div>
+                </div>
+
+                <div class="texture-row">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="tex_events" ${tex.events?.enabled !== false ? 'checked' : ''}>
+                        <span>Événements</span>
+                    </label>
+                    <div class="slider-inline">
+                        <input type="range" id="tex_events_opacity" min="5" max="50" value="${Math.round((tex.events?.opacity || 0.25) * 100)}" oninput="document.getElementById('tex_events_opacity_val').textContent = this.value + '%'">
+                        <span id="tex_events_opacity_val">${Math.round((tex.events?.opacity || 0.25) * 100)}%</span>
+                    </div>
+                </div>
+
+                <div class="texture-row">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="tex_testimonials" ${tex.testimonials?.enabled !== false ? 'checked' : ''}>
+                        <span>Témoignages</span>
+                    </label>
+                    <div class="slider-inline">
+                        <input type="range" id="tex_testimonials_opacity" min="5" max="50" value="${Math.round((tex.testimonials?.opacity || 0.20) * 100)}" oninput="document.getElementById('tex_testimonials_opacity_val').textContent = this.value + '%'">
+                        <span id="tex_testimonials_opacity_val">${Math.round((tex.testimonials?.opacity || 0.20) * 100)}%</span>
+                    </div>
+                </div>
+
+                <div class="texture-row">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="tex_quote" ${tex.quote?.enabled !== false ? 'checked' : ''}>
+                        <span>Formulaire devis</span>
+                    </label>
+                    <div class="slider-inline">
+                        <input type="range" id="tex_quote_opacity" min="5" max="50" value="${Math.round((tex.quote?.opacity || 0.20) * 100)}" oninput="document.getElementById('tex_quote_opacity_val').textContent = this.value + '%'">
+                        <span id="tex_quote_opacity_val">${Math.round((tex.quote?.opacity || 0.20) * 100)}%</span>
+                    </div>
+                </div>
+
+                <div class="texture-row">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="tex_contact" ${tex.contact?.enabled !== false ? 'checked' : ''}>
+                        <span>Contact</span>
+                    </label>
+                    <div class="slider-inline">
+                        <input type="range" id="tex_contact_opacity" min="5" max="50" value="${Math.round((tex.contact?.opacity || 0.20) * 100)}" oninput="document.getElementById('tex_contact_opacity_val').textContent = this.value + '%'">
+                        <span id="tex_contact_opacity_val">${Math.round((tex.contact?.opacity || 0.20) * 100)}%</span>
+                    </div>
+                </div>
+            </div>
+        `)}
+
+        ${formCard('Séparateurs entre sections', 'orn-dividers', `
+            <div class="form-group">
+                <label>Style de séparateur</label>
+                <select id="divider_style">
+                    <option value="simple" ${orn.dividers?.style === 'simple' ? 'selected' : ''}>Simple (étoile marocaine)</option>
+                    <option value="elaborate" ${orn.dividers?.style === 'elaborate' ? 'selected' : ''}>Élaboré (arc + motifs)</option>
+                    <option value="minimal" ${orn.dividers?.style === 'minimal' ? 'selected' : ''}>Minimal (ligne simple)</option>
+                    <option value="none" ${orn.dividers?.style === 'none' ? 'selected' : ''}>Aucun</option>
+                </select>
+            </div>
+            <div class="slider-group">
+                <label>Opacité <span id="divider_opacity_val">${Math.round((orn.dividers?.opacity || 0.6) * 100)}%</span></label>
+                <input type="range" id="divider_opacity" min="20" max="100" value="${Math.round((orn.dividers?.opacity || 0.6) * 100)}" oninput="document.getElementById('divider_opacity_val').textContent = this.value + '%'">
+            </div>
+        `)}
+
+        ${formCard('Étoiles marocaines', 'orn-stars', `
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="stars_showOnTitles" ${orn.stars?.showOnTitles !== false ? 'checked' : ''}>
+                    <span>Afficher une étoile au-dessus des titres de section</span>
+                </label>
+            </div>
+            <div class="slider-group">
+                <label>Opacité des étoiles <span id="stars_opacity_val">${Math.round((orn.stars?.opacity || 0.85) * 100)}%</span></label>
+                <input type="range" id="stars_opacity" min="30" max="100" value="${Math.round((orn.stars?.opacity || 0.85) * 100)}" oninput="document.getElementById('stars_opacity_val').textContent = this.value + '%'">
+            </div>
+        `)}
+
+        ${formCard('Lanternes décoratives', 'orn-lanterns', `
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="lanterns_hero" ${orn.lanterns?.hero !== false ? 'checked' : ''}>
+                    <span>Lanternes dans le Hero</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="toggle-label">
+                    <input type="checkbox" id="lanterns_footer" ${orn.lanterns?.footer !== false ? 'checked' : ''}>
+                    <span>Lanternes dans le Footer</span>
+                </label>
+            </div>
+        `)}
+    `;
+
+    document.getElementById('saveOrnamentsBtn').addEventListener('click', saveOrnaments);
+}
+
+async function saveOrnaments() {
+    showLoader();
+
+    siteDesign.textures = {
+        hero: {
+            enabled: document.getElementById('tex_hero').checked,
+            opacity: parseInt(document.getElementById('tex_hero_opacity').value) / 100
+        },
+        presentation: {
+            enabled: document.getElementById('tex_presentation').checked,
+            opacity: parseInt(document.getElementById('tex_presentation_opacity').value) / 100
+        },
+        products: {
+            enabled: document.getElementById('tex_products').checked,
+            opacity: parseInt(document.getElementById('tex_products_opacity').value) / 100
+        },
+        events: {
+            enabled: document.getElementById('tex_events').checked,
+            opacity: parseInt(document.getElementById('tex_events_opacity').value) / 100
+        },
+        testimonials: {
+            enabled: document.getElementById('tex_testimonials').checked,
+            opacity: parseInt(document.getElementById('tex_testimonials_opacity').value) / 100
+        },
+        quote: {
+            enabled: document.getElementById('tex_quote').checked,
+            opacity: parseInt(document.getElementById('tex_quote_opacity').value) / 100
+        },
+        contact: {
+            enabled: document.getElementById('tex_contact').checked,
+            opacity: parseInt(document.getElementById('tex_contact_opacity').value) / 100
+        }
+    };
+
+    siteDesign.ornaments = {
+        dividers: {
+            style: document.getElementById('divider_style').value,
+            opacity: parseInt(document.getElementById('divider_opacity').value) / 100
+        },
+        stars: {
+            showOnTitles: document.getElementById('stars_showOnTitles').checked,
+            opacity: parseInt(document.getElementById('stars_opacity').value) / 100
+        },
+        lanterns: {
+            hero: document.getElementById('lanterns_hero').checked,
+            footer: document.getElementById('lanterns_footer').checked
+        }
+    };
+
+    try {
+        await saveFile('data/site-design.json', JSON.stringify(siteDesign, null, 2));
+        showToast('Ornements et textures enregistrés !');
     } catch (err) {
         showToast('Erreur: ' + err.message, 'error');
     }
@@ -623,8 +1275,9 @@ async function saveTexts() {
 // ============================================
 function renderContactForm() {
     const c = siteContent.contact || {};
+
     document.getElementById('contactForm').innerHTML = `
-        ${textCard('Coordonnées', `
+        ${formCard('Coordonnées', 'contact-info', `
             ${field('ct_title', 'Titre de la section', c.title)}
             ${textarea('ct_subtitle', 'Sous-titre', c.subtitle)}
             <div class="form-row">
@@ -632,14 +1285,15 @@ function renderContactForm() {
                 ${field('ct_whatsappNumber', 'WhatsApp (international)', c.whatsappNumber, 'Ex: 33652375578')}
             </div>
             <div class="form-row">
-                ${field('ct_instagram', 'Instagram', c.instagram, '@perledefes.creation')}
+                ${field('ct_instagram', 'Instagram', c.instagram, '@perledefes_creation')}
                 ${field('ct_instagramUrl', 'URL Instagram', c.instagramUrl)}
             </div>
             ${field('ct_email', 'Email', c.email)}
         `)}
-        ${textCard('Informations livraison', `
+
+        ${formCard('Informations de livraison', 'contact-delivery', `
             <div class="form-group">
-                <label>LIGNES D'INFO LIVRAISON</label>
+                <label>Lignes d'information</label>
                 <div class="list-editor" id="deliveryEditor">
                     ${(c.deliveryInfo || []).map(line => `
                         <div class="list-editor-item">
@@ -648,12 +1302,12 @@ function renderContactForm() {
                         </div>
                     `).join('')}
                 </div>
-                <button class="btn btn-outline btn-sm" onclick="addDeliveryLine()" type="button" style="margin-top:6px;">+ Ajouter une ligne</button>
+                <button class="btn btn-outline btn-sm" onclick="addDeliveryLine()" type="button">+ Ajouter une ligne</button>
             </div>
         `)}
     `;
 
-    document.getElementById('saveContactBtn').onclick = saveContact;
+    document.getElementById('saveContactBtn').addEventListener('click', saveContact);
 }
 
 function addDeliveryLine() {
@@ -666,10 +1320,14 @@ function addDeliveryLine() {
 
 async function saveContact() {
     showLoader();
+
     siteContent.contact = {
-        title: val('ct_title'), subtitle: val('ct_subtitle'),
-        whatsapp: val('ct_whatsapp'), whatsappNumber: val('ct_whatsappNumber'),
-        instagram: val('ct_instagram'), instagramUrl: val('ct_instagramUrl'),
+        title: val('ct_title'),
+        subtitle: val('ct_subtitle'),
+        whatsapp: val('ct_whatsapp'),
+        whatsappNumber: val('ct_whatsappNumber'),
+        instagram: val('ct_instagram'),
+        instagramUrl: val('ct_instagramUrl'),
         email: val('ct_email'),
         deliveryInfo: Array.from(document.querySelectorAll('#deliveryEditor input')).map(i => i.value.trim()).filter(v => v)
     };
@@ -684,10 +1342,39 @@ async function saveContact() {
 }
 
 // ============================================
-// SAUVEGARDE via Netlify Function
-// La function serveur gère l'API GitHub avec le token
+// MODAL SUPPRESSION
 // ============================================
+function initDeleteModal() {
+    document.getElementById('deleteCancelBtn').addEventListener('click', closeDeleteModal);
+    document.getElementById('deleteConfirmBtn').addEventListener('click', executeDelete);
+    document.getElementById('deleteModal').addEventListener('click', e => {
+        if (e.target.id === 'deleteModal') closeDeleteModal();
+    });
+}
 
+function openDeleteModal(itemName, callback) {
+    deleteCallback = callback;
+    document.getElementById('deleteItemName').textContent = itemName;
+    document.getElementById('deleteModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    document.body.style.overflow = '';
+    deleteCallback = null;
+}
+
+async function executeDelete() {
+    closeDeleteModal();
+    if (deleteCallback) {
+        await deleteCallback();
+    }
+}
+
+// ============================================
+// SAUVEGARDE VIA NETLIFY FUNCTION
+// ============================================
 async function getIdentityToken() {
     try { await netlifyIdentity.refresh(); } catch (e) { /* */ }
     return netlifyIdentity.currentUser()?.token?.access_token;
@@ -734,10 +1421,6 @@ async function uploadFile(path, base64Data) {
 // ============================================
 // HELPERS
 // ============================================
-function utf8ToBase64(str) {
-    return btoa(unescape(encodeURIComponent(str)));
-}
-
 function esc(str) {
     if (!str) return '';
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -749,333 +1432,71 @@ function val(id) {
 }
 
 function field(id, label, value, placeholder) {
-    return `<div class="form-group"><label for="${id}">${label.toUpperCase()}</label><input type="text" id="${id}" value="${esc(value || '')}" ${placeholder ? 'placeholder="' + esc(placeholder) + '"' : ''}></div>`;
+    return `
+        <div class="form-group">
+            <label for="${id}">${label}</label>
+            <input type="text" id="${id}" value="${esc(value || '')}" ${placeholder ? 'placeholder="' + esc(placeholder) + '"' : ''}>
+        </div>
+    `;
 }
 
 function textarea(id, label, value) {
-    return `<div class="form-group"><label for="${id}">${label.toUpperCase()}</label><textarea id="${id}">${esc(value || '')}</textarea></div>`;
+    return `
+        <div class="form-group">
+            <label for="${id}">${label}</label>
+            <textarea id="${id}">${esc(value || '')}</textarea>
+        </div>
+    `;
 }
 
-function textCard(title, body) {
-    return `<div class="form-card"><div class="form-card__header" onclick="toggleCard(this)"><h3>${title}</h3><span class="form-card__toggle">&#9660;</span></div><div class="form-card__body">${body}</div></div>`;
+function colorField(id, label, value) {
+    return `
+        <div class="form-group">
+            <label for="${id}">${label}</label>
+            <div class="color-input-wrapper">
+                <input type="color" id="${id}" value="${value}">
+                <input type="text" id="${id}_hex" value="${value}" maxlength="7">
+            </div>
+        </div>
+    `;
+}
+
+function formCard(title, id, body) {
+    return `
+        <div class="form-card" id="card-${id}">
+            <div class="form-card__header" onclick="toggleCard(this)">
+                <h3>${title}</h3>
+                <span class="form-card__toggle">▼</span>
+            </div>
+            <div class="form-card__body">${body}</div>
+        </div>
+    `;
 }
 
 function toggleCard(header) {
     header.closest('.form-card').classList.toggle('collapsed');
 }
 
+function syncAllColorInputs() {
+    document.querySelectorAll('.color-input-wrapper').forEach(wrapper => {
+        const picker = wrapper.querySelector('input[type="color"]');
+        const hex = wrapper.querySelector('input[type="text"]');
+        if (picker && hex) {
+            picker.addEventListener('input', () => { hex.value = picker.value; });
+            hex.addEventListener('input', () => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(hex.value)) picker.value = hex.value;
+            });
+        }
+    });
+}
+
 function showToast(text, type) {
     const toast = document.getElementById('toast');
     document.getElementById('toastText').textContent = text;
-    document.getElementById('toastIcon').innerHTML = type === 'error' ? '&#10007;' : '&#10003;';
+    document.getElementById('toastIcon').innerHTML = type === 'error' ? '✕' : '✓';
     toast.className = 'toast show' + (type === 'error' ? ' toast--error' : ' toast--success');
     setTimeout(() => { toast.className = 'toast'; }, 4000);
 }
 
 function showLoader() { document.getElementById('loader').style.display = 'flex'; }
 function hideLoader() { document.getElementById('loader').style.display = 'none'; }
-
-// ============================================
-// DESIGN - COULEURS, TEXTURES, CALLIGRAPHIE
-// ============================================
-function renderDesignForm() {
-    const d = siteDesign || getDefaultDesign();
-    const c = d.colors || {};
-    const t = d.textures || {};
-    const cal = d.calligraphy || {};
-    const pc = d.productCards || {};
-
-    document.getElementById('designForm').innerHTML = `
-        ${textCard('Palette de couleurs', `
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="color_primary">COULEUR PRINCIPALE (OR)</label>
-                    <div class="color-input-wrapper">
-                        <input type="color" id="color_primary" value="${c.primary || '#C9A84C'}">
-                        <input type="text" id="color_primary_hex" value="${c.primary || '#C9A84C'}" maxlength="7">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="color_primaryLight">OR CLAIR</label>
-                    <div class="color-input-wrapper">
-                        <input type="color" id="color_primaryLight" value="${c.primaryLight || '#E8D5A3'}">
-                        <input type="text" id="color_primaryLight_hex" value="${c.primaryLight || '#E8D5A3'}" maxlength="7">
-                    </div>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="color_background">FOND PRINCIPAL</label>
-                    <div class="color-input-wrapper">
-                        <input type="color" id="color_background" value="${c.background || '#FAF6F0'}">
-                        <input type="text" id="color_background_hex" value="${c.background || '#FAF6F0'}" maxlength="7">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="color_backgroundSection">FOND SECTIONS</label>
-                    <div class="color-input-wrapper">
-                        <input type="color" id="color_backgroundSection" value="${c.backgroundSection || '#F0E8D8'}">
-                        <input type="text" id="color_backgroundSection_hex" value="${c.backgroundSection || '#F0E8D8'}" maxlength="7">
-                    </div>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="color_text">COULEUR TEXTE</label>
-                    <div class="color-input-wrapper">
-                        <input type="color" id="color_text" value="${c.text || '#2C2420'}">
-                        <input type="text" id="color_text_hex" value="${c.text || '#2C2420'}" maxlength="7">
-                    </div>
-                </div>
-            </div>
-        `)}
-
-        ${textCard('Textures (motifs zellige)', `
-            <div class="form-group">
-                <label class="toggle-label">
-                    <input type="checkbox" id="texture_zellige_enabled" ${t.zellige?.enabled !== false ? 'checked' : ''}>
-                    <span>Activer texture Hero</span>
-                </label>
-                <div class="slider-group">
-                    <label>Opacite: <span id="texture_zellige_opacity_val">${Math.round((t.zellige?.opacity || 0.12) * 100)}%</span></label>
-                    <input type="range" id="texture_zellige_opacity" min="0" max="30" value="${Math.round((t.zellige?.opacity || 0.12) * 100)}" oninput="document.getElementById('texture_zellige_opacity_val').textContent = this.value + '%'">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="toggle-label">
-                    <input type="checkbox" id="texture_presentation_enabled" ${t.presentation?.enabled !== false ? 'checked' : ''}>
-                    <span>Activer texture Presentation</span>
-                </label>
-                <div class="slider-group">
-                    <label>Opacite: <span id="texture_presentation_opacity_val">${Math.round((t.presentation?.opacity || 0.10) * 100)}%</span></label>
-                    <input type="range" id="texture_presentation_opacity" min="0" max="30" value="${Math.round((t.presentation?.opacity || 0.10) * 100)}" oninput="document.getElementById('texture_presentation_opacity_val').textContent = this.value + '%'">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="toggle-label">
-                    <input type="checkbox" id="texture_events_enabled" ${t.events?.enabled !== false ? 'checked' : ''}>
-                    <span>Activer texture Evenements</span>
-                </label>
-                <div class="slider-group">
-                    <label>Opacite: <span id="texture_events_opacity_val">${Math.round((t.events?.opacity || 0.12) * 100)}%</span></label>
-                    <input type="range" id="texture_events_opacity" min="0" max="30" value="${Math.round((t.events?.opacity || 0.12) * 100)}" oninput="document.getElementById('texture_events_opacity_val').textContent = this.value + '%'">
-                </div>
-            </div>
-        `)}
-
-        ${textCard('Calligraphie arabe', `
-            <div class="form-group">
-                <label class="toggle-label">
-                    <input type="checkbox" id="calligraphy_hero_enabled" ${cal.hero?.enabled !== false ? 'checked' : ''}>
-                    <span>Calligraphie dans le Hero</span>
-                </label>
-                <input type="text" id="calligraphy_hero_text" value="${esc(cal.hero?.text || '\u0628\u064a\u0631\u0644 \u062f\u0648 \u0641\u0627\u0633')}" placeholder="Texte arabe" dir="rtl" style="text-align:right; font-family:'Amiri',serif; font-size:18px;">
-                <div class="slider-group">
-                    <label>Opacite: <span id="calligraphy_hero_opacity_val">${Math.round((cal.hero?.opacity || 0.06) * 100)}%</span></label>
-                    <input type="range" id="calligraphy_hero_opacity" min="1" max="20" value="${Math.round((cal.hero?.opacity || 0.06) * 100)}" oninput="document.getElementById('calligraphy_hero_opacity_val').textContent = this.value + '%'">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="toggle-label">
-                    <input type="checkbox" id="calligraphy_presentation_enabled" ${cal.presentation?.enabled !== false ? 'checked' : ''}>
-                    <span>Calligraphie dans Presentation</span>
-                </label>
-                <input type="text" id="calligraphy_presentation_text" value="${esc(cal.presentation?.text || '\u0627\u0644\u062c\u0645\u0627\u0644')}" placeholder="Texte arabe" dir="rtl" style="text-align:right; font-family:'Amiri',serif; font-size:18px;">
-                <div class="slider-group">
-                    <label>Opacite: <span id="calligraphy_presentation_opacity_val">${Math.round((cal.presentation?.opacity || 0.08) * 100)}%</span></label>
-                    <input type="range" id="calligraphy_presentation_opacity" min="1" max="20" value="${Math.round((cal.presentation?.opacity || 0.08) * 100)}" oninput="document.getElementById('calligraphy_presentation_opacity_val').textContent = this.value + '%'">
-                </div>
-            </div>
-        `)}
-
-        ${textCard('Cartes produits', `
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="card_background">FOND CARTE</label>
-                    <div class="color-input-wrapper">
-                        <input type="color" id="card_background" value="${pc.backgroundColor || '#FFFFFF'}">
-                        <input type="text" id="card_background_hex" value="${pc.backgroundColor || '#FFFFFF'}" maxlength="7">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="card_hoverBorder">BORDURE AU SURVOL</label>
-                    <div class="color-input-wrapper">
-                        <input type="color" id="card_hoverBorder" value="${pc.hoverBorderColor || '#C9A84C'}">
-                        <input type="text" id="card_hoverBorder_hex" value="${pc.hoverBorderColor || '#C9A84C'}" maxlength="7">
-                    </div>
-                </div>
-            </div>
-        `)}
-    `;
-
-    // Sync color pickers with hex inputs
-    syncColorInputs();
-    document.getElementById('saveDesignBtn').addEventListener('click', saveDesign);
-}
-
-function syncColorInputs() {
-    const colorFields = ['color_primary', 'color_primaryLight', 'color_background', 'color_backgroundSection', 'color_text', 'card_background', 'card_hoverBorder'];
-    colorFields.forEach(field => {
-        const picker = document.getElementById(field);
-        const hex = document.getElementById(field + '_hex');
-        if (picker && hex) {
-            picker.addEventListener('input', () => { hex.value = picker.value; });
-            hex.addEventListener('input', () => { if (/^#[0-9A-Fa-f]{6}$/.test(hex.value)) picker.value = hex.value; });
-        }
-    });
-}
-
-async function saveDesign() {
-    showLoader();
-
-    siteDesign.colors = {
-        primary: val('color_primary_hex') || '#C9A84C',
-        primaryLight: val('color_primaryLight_hex') || '#E8D5A3',
-        primaryDark: siteDesign.colors?.primaryDark || '#8B6914',
-        background: val('color_background_hex') || '#FAF6F0',
-        backgroundSection: val('color_backgroundSection_hex') || '#F0E8D8',
-        text: val('color_text_hex') || '#2C2420'
-    };
-
-    siteDesign.textures = {
-        zellige: {
-            enabled: document.getElementById('texture_zellige_enabled').checked,
-            opacity: parseInt(document.getElementById('texture_zellige_opacity').value) / 100
-        },
-        presentation: {
-            enabled: document.getElementById('texture_presentation_enabled').checked,
-            opacity: parseInt(document.getElementById('texture_presentation_opacity').value) / 100
-        },
-        events: {
-            enabled: document.getElementById('texture_events_enabled').checked,
-            opacity: parseInt(document.getElementById('texture_events_opacity').value) / 100
-        }
-    };
-
-    siteDesign.calligraphy = {
-        hero: {
-            text: val('calligraphy_hero_text'),
-            enabled: document.getElementById('calligraphy_hero_enabled').checked,
-            opacity: parseInt(document.getElementById('calligraphy_hero_opacity').value) / 100
-        },
-        presentation: {
-            text: val('calligraphy_presentation_text'),
-            enabled: document.getElementById('calligraphy_presentation_enabled').checked,
-            opacity: parseInt(document.getElementById('calligraphy_presentation_opacity').value) / 100
-        }
-    };
-
-    siteDesign.productCards = {
-        backgroundColor: val('card_background_hex') || '#FFFFFF',
-        hoverBorderColor: val('card_hoverBorder_hex') || '#C9A84C'
-    };
-
-    try {
-        await saveFile('data/site-design.json', JSON.stringify(siteDesign, null, 2));
-        showToast('Design enregistre !');
-    } catch (err) {
-        showToast('Erreur: ' + err.message, 'error');
-    }
-    hideLoader();
-}
-
-// ============================================
-// ORNEMENTS - SEPARATEURS, ETOILES
-// ============================================
-function renderOrnamentsForm() {
-    const d = siteDesign || getDefaultDesign();
-    const orn = d.ornaments || {};
-    const div = orn.dividers || {};
-    const stars = orn.stars || {};
-
-    document.getElementById('ornamentsForm').innerHTML = `
-        ${textCard('Separateurs entre sections', `
-            <div class="form-group">
-                <label>STYLE DE SEPARATEUR</label>
-                <div class="radio-group">
-                    <label class="radio-option ${div.style === 'simple' || !div.style ? 'selected' : ''}" onclick="selectRadio(this, 'divider_style')">
-                        <input type="radio" name="divider_style" value="simple" ${div.style === 'simple' || !div.style ? 'checked' : ''}>
-                        Simple (etoile marocaine)
-                    </label>
-                    <label class="radio-option ${div.style === 'elaborate' ? 'selected' : ''}" onclick="selectRadio(this, 'divider_style')">
-                        <input type="radio" name="divider_style" value="elaborate" ${div.style === 'elaborate' ? 'checked' : ''}>
-                        Elabore (arc + motifs)
-                    </label>
-                    <label class="radio-option ${div.style === 'minimal' ? 'selected' : ''}" onclick="selectRadio(this, 'divider_style')">
-                        <input type="radio" name="divider_style" value="minimal" ${div.style === 'minimal' ? 'checked' : ''}>
-                        Minimal (ligne simple)
-                    </label>
-                </div>
-            </div>
-            <div class="slider-group">
-                <label>Opacite: <span id="divider_opacity_val">${Math.round((div.opacity || 0.6) * 100)}%</span></label>
-                <input type="range" id="divider_opacity" min="20" max="100" value="${Math.round((div.opacity || 0.6) * 100)}" oninput="document.getElementById('divider_opacity_val').textContent = this.value + '%'">
-            </div>
-        `)}
-
-        ${textCard('Etoiles marocaines', `
-            <div class="form-group">
-                <label class="toggle-label">
-                    <input type="checkbox" id="stars_showOnTitles" ${stars.showOnTitles !== false ? 'checked' : ''}>
-                    <span>Afficher etoile au-dessus des titres de section</span>
-                </label>
-            </div>
-            <div class="slider-group">
-                <label>Opacite des etoiles: <span id="stars_opacity_val">${Math.round((stars.opacity || 0.85) * 100)}%</span></label>
-                <input type="range" id="stars_opacity" min="30" max="100" value="${Math.round((stars.opacity || 0.85) * 100)}" oninput="document.getElementById('stars_opacity_val').textContent = this.value + '%'">
-            </div>
-            <div class="form-group">
-                <label>APERCU</label>
-                <div style="display:flex; gap:20px; justify-content:center; padding:20px; background:var(--bg-section); border-radius:8px;">
-                    <svg viewBox="0 0 100 100" width="50" height="50"><g fill="var(--gold)"><rect x="25" y="25" width="50" height="50" transform="rotate(0 50 50)"/><rect x="25" y="25" width="50" height="50" transform="rotate(45 50 50)"/><circle cx="50" cy="50" r="12"/></g></svg>
-                    <svg viewBox="0 0 100 100" width="40" height="40"><g fill="var(--gold)" opacity="0.7"><rect x="25" y="25" width="50" height="50" transform="rotate(0 50 50)"/><rect x="25" y="25" width="50" height="50" transform="rotate(45 50 50)"/></g></svg>
-                    <svg viewBox="0 0 100 100" width="30" height="30"><g fill="var(--gold)" opacity="0.5"><rect x="25" y="25" width="50" height="50" transform="rotate(0 50 50)"/><rect x="25" y="25" width="50" height="50" transform="rotate(45 50 50)"/></g></svg>
-                </div>
-            </div>
-        `)}
-
-        ${textCard('Lanternes decoratives', `
-            <div class="form-group">
-                <label class="toggle-label">
-                    <input type="checkbox" id="lanterns_hero" ${d.ornaments?.lanterns?.hero !== false ? 'checked' : ''}>
-                    <span>Lanternes dans le Hero</span>
-                </label>
-            </div>
-            <div class="form-group">
-                <label class="toggle-label">
-                    <input type="checkbox" id="lanterns_footer" ${d.ornaments?.lanterns?.footer !== false ? 'checked' : ''}>
-                    <span>Lanternes dans le Footer</span>
-                </label>
-            </div>
-        `)}
-    `;
-
-    document.getElementById('saveOrnamentsBtn').addEventListener('click', saveOrnaments);
-}
-
-async function saveOrnaments() {
-    showLoader();
-
-    siteDesign.ornaments = {
-        dividers: {
-            style: document.querySelector('input[name="divider_style"]:checked')?.value || 'simple',
-            opacity: parseInt(document.getElementById('divider_opacity').value) / 100
-        },
-        stars: {
-            showOnTitles: document.getElementById('stars_showOnTitles').checked,
-            opacity: parseInt(document.getElementById('stars_opacity').value) / 100
-        },
-        lanterns: {
-            hero: document.getElementById('lanterns_hero').checked,
-            footer: document.getElementById('lanterns_footer').checked
-        }
-    };
-
-    try {
-        await saveFile('data/site-design.json', JSON.stringify(siteDesign, null, 2));
-        showToast('Ornements enregistres !');
-    } catch (err) {
-        showToast('Erreur: ' + err.message, 'error');
-    }
-    hideLoader();
-}

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(findstr:*)",
+      "Bash(python -m http.server:*)",
+      "Bash(git pull:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nRefonte complete modale mobile + ameliorations UI\n\n- Modale mobile: structure fixe \\(image/titre/prix\\) + composition scrollable + footer fixe\n- Boutons carousel a gauche/droite de l''image\n- Footer toujours visible avec delai et bouton WhatsApp\n- Logo sidebar agrandi x1.5 \\(150px\\)\n- Instagram corrige: perledefes_creation\n- WhatsApp cache quand modale/nav ouverte\n- Ajout images produits\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(taskkill:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

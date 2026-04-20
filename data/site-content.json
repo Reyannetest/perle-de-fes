@@ -6,7 +6,7 @@
     "cta": "Découvrir nos créations",
     "logo": "/images/logo-1775585364207-logo-perle-de-fes.jpeg",
     "backgroundImage": "",
-    "headerDisplay": "both",
+    "headerDisplay": "text",
     "sidebarDisplay": "both"
   },
   "presentation": {

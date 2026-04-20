@@ -7,9 +7,9 @@
 // ============================================
 // EMAILJS CONFIGURATION — À REMPLACER
 // ============================================
-const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY";
-const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
-const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
+const EMAILJS_PUBLIC_KEY = "eqpShrznGy8G-AzTu";
+const EMAILJS_SERVICE_ID = "service_umlvtpl";
+const EMAILJS_TEMPLATE_ID = "template_1bhgulw";
 
 // ============================================
 // UTILITAIRES DE SÉCURITÉ
@@ -60,11 +60,98 @@ async function loadSiteDesign() {
         const response = await fetch('/data/site-design.json');
         if (response.ok) {
             siteDesign = await response.json();
+            applyDesignColors();
             applyTextureSettings();
         }
     } catch (e) {
         console.warn('Design du site non chargé, utilisation des valeurs par défaut.');
     }
+}
+
+// ============================================
+// APPLICATION DES COULEURS DYNAMIQUES
+// ============================================
+function applyDesignColors() {
+    const colors = siteDesign.colors || {};
+    const sectionColors = siteDesign.sectionColors || {};
+    const buttonColors = siteDesign.buttonColors || {};
+    const cardColors = siteDesign.cardColors || {};
+    const root = document.documentElement;
+
+    // Couleurs principales (CSS custom properties)
+    if (colors.primary) root.style.setProperty('--gold', colors.primary);
+    if (colors.primaryLight) root.style.setProperty('--gold-light', colors.primaryLight);
+    if (colors.primaryDark) root.style.setProperty('--gold-dark', colors.primaryDark);
+    if (colors.primaryBright) root.style.setProperty('--gold-bright', colors.primaryBright);
+    if (colors.background) root.style.setProperty('--bg-main', colors.background);
+    if (colors.backgroundAlt) root.style.setProperty('--bg-section', colors.backgroundAlt);
+    if (colors.backgroundDark) root.style.setProperty('--bg-dark', colors.backgroundDark);
+    if (colors.text) root.style.setProperty('--text', colors.text);
+    if (colors.textLight) root.style.setProperty('--text-light', colors.textLight);
+
+    // Bandeau promo
+    const promoBanner = document.querySelector('.promo-banner');
+    if (promoBanner) {
+        if (colors.promoBg) promoBanner.style.background = colors.promoBg;
+        if (colors.promoText) promoBanner.style.color = colors.promoText;
+    }
+
+    // Couleurs par section
+    const sections = ['hero', 'presentation', 'products', 'events', 'testimonials', 'quote', 'contact', 'footer'];
+    sections.forEach(section => {
+        const el = document.querySelector('.' + section) || document.querySelector('#' + section);
+        const sc = sectionColors[section];
+        if (el && sc) {
+            if (sc.bg) el.style.backgroundColor = sc.bg;
+            if (sc.text) el.style.color = sc.text;
+            // Appliquer aux titres de la section
+            const title = el.querySelector('.section__title');
+            if (title && sc.titleColor) title.style.color = sc.titleColor;
+        }
+    });
+
+    // Couleur globale des titres si pas définie par section
+    if (colors.titleColor) {
+        document.querySelectorAll('.section__title').forEach(title => {
+            if (!title.style.color) title.style.color = colors.titleColor;
+        });
+        // Hero title
+        const heroTitle = document.querySelector('.hero__title');
+        if (heroTitle) heroTitle.style.color = colors.titleColor;
+    }
+
+    // Boutons
+    document.querySelectorAll('.btn--primary').forEach(btn => {
+        if (buttonColors.primaryBg) btn.style.backgroundColor = buttonColors.primaryBg;
+        if (buttonColors.primaryText) btn.style.color = buttonColors.primaryText;
+        if (buttonColors.primaryBg) btn.style.borderColor = buttonColors.primaryBg;
+    });
+    document.querySelectorAll('.btn--secondary').forEach(btn => {
+        if (buttonColors.secondaryBg) btn.style.backgroundColor = buttonColors.secondaryBg;
+        if (buttonColors.secondaryBorder) {
+            btn.style.borderColor = buttonColors.secondaryBorder;
+            btn.style.color = buttonColors.secondaryBorder;
+        }
+    });
+
+    // Cartes produits
+    document.querySelectorAll('.product-card').forEach(card => {
+        if (cardColors.bg) card.style.backgroundColor = cardColors.bg;
+        if (cardColors.border) card.style.borderColor = cardColors.border;
+        const title = card.querySelector('.product-card__title');
+        if (title && cardColors.title) title.style.color = cardColors.title;
+        const price = card.querySelector('.product-card__price');
+        if (price && cardColors.price) price.style.color = cardColors.price;
+        const badge = card.querySelector('.product-card__badge');
+        if (badge) {
+            if (cardColors.badgeBg) badge.style.backgroundColor = cardColors.badgeBg;
+            if (cardColors.badgeText) badge.style.color = cardColors.badgeText;
+        }
+    });
+
+    // Header logo
+    const headerLogo = document.querySelector('.header__logo-text');
+    if (headerLogo && colors.titleColor) headerLogo.style.color = colors.titleColor;
 }
 
 function applyTextureSettings() {
@@ -333,6 +420,12 @@ function applySiteContent() {
                 const info = card.querySelector('.contact__info');
                 if (info) info.textContent = c.contact.instagram;
             }
+        }
+
+        // Instagram dans le header
+        const headerInsta = document.querySelector('.header__instagram');
+        if (headerInsta && c.contact.instagramUrl) {
+            headerInsta.href = c.contact.instagramUrl;
         }
 
         const emailCard = document.querySelector('.contact__icon--email');
@@ -804,14 +897,14 @@ function sendEmail() {
     submitButton.textContent = 'Envoi en cours...';
 
     const templateParams = {
-        from_name: document.getElementById('name').value,
-        from_email: document.getElementById('email').value,
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
         phone: document.getElementById('phone').value,
-        product_type: document.getElementById('productType').value,
-        quantity: document.getElementById('quantity').value,
+        products: document.getElementById('productType').value,
+        guests: document.getElementById('quantity').value,
         event_date: document.getElementById('eventDate').value,
         event_type: document.getElementById('eventType').value,
-        personalization: document.getElementById('personalization').value || 'Non spécifié',
+        budget: document.getElementById('personalization').value || 'Non spécifié',
         message: document.getElementById('message').value || 'Aucun message'
     };
 

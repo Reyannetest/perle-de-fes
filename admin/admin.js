@@ -527,72 +527,125 @@ function renderColorsForm() {
     const d = siteDesign;
     const c = d.colors || {};
     const sc = d.sectionColors || {};
+    const bc = d.buttonColors || {};
+    const cc = d.cardColors || {};
 
     document.getElementById('colorsForm').innerHTML = `
         ${formCard('Couleurs Principales', 'colors-main', `
+            <p class="form-hint" style="margin-bottom:16px;">Les couleurs de base utilisées sur tout le site.</p>
             <div class="form-row">
                 ${colorField('color_primary', 'Couleur Or (principale)', c.primary || '#C9A84C')}
                 ${colorField('color_primaryLight', 'Or Clair', c.primaryLight || '#E8D5A3')}
+            </div>
+            <div class="form-row">
+                ${colorField('color_primaryDark', 'Or Foncé', c.primaryDark || '#8B6914')}
+                ${colorField('color_titleColor', 'Couleur Titres', c.titleColor || '#996B2B')}
             </div>
             <div class="form-row">
                 ${colorField('color_background', 'Fond Principal', c.background || '#FAF6F0')}
                 ${colorField('color_backgroundAlt', 'Fond Alternatif', c.backgroundAlt || '#F5EFE6')}
             </div>
             <div class="form-row">
+                ${colorField('color_backgroundDark', 'Fond Sombre', c.backgroundDark || '#2C2420')}
                 ${colorField('color_text', 'Texte Principal', c.text || '#2C2C2C')}
+            </div>
+            <div class="form-row">
                 ${colorField('color_textLight', 'Texte Secondaire', c.textLight || '#5A5A5A')}
             </div>
         `)}
 
-        ${formCard('Couleur par Section', 'colors-sections', `
-            <p class="form-hint" style="margin-bottom:16px;">Personnalisez le fond et la couleur du texte de chaque section.</p>
+        ${formCard('Boutons', 'colors-buttons', `
+            <p class="form-hint" style="margin-bottom:16px;">Couleurs des boutons d'action.</p>
+            <div class="form-row">
+                ${colorField('btn_primary_bg', 'Fond Bouton Principal', bc.primaryBg || '#C9A84C')}
+                ${colorField('btn_primary_text', 'Texte Bouton Principal', bc.primaryText || '#FFFFFF')}
+            </div>
+            <div class="form-row">
+                ${colorField('btn_secondary_bg', 'Fond Bouton Secondaire', bc.secondaryBg || 'transparent')}
+                ${colorField('btn_secondary_border', 'Bordure Bouton Secondaire', bc.secondaryBorder || '#C9A84C')}
+            </div>
+        `)}
 
-            <div class="section-divider"><span>Hero</span></div>
+        ${formCard('Cartes Produits', 'colors-cards', `
+            <p class="form-hint" style="margin-bottom:16px;">Apparence des cartes produits.</p>
+            <div class="form-row">
+                ${colorField('card_bg', 'Fond Carte', cc.bg || '#FFFFFF')}
+                ${colorField('card_border', 'Bordure Carte', cc.border || '#E8D5A3')}
+            </div>
+            <div class="form-row">
+                ${colorField('card_title', 'Titre Carte', cc.title || '#2C2C2C')}
+                ${colorField('card_price', 'Prix Carte', cc.price || '#C9A84C')}
+            </div>
+            <div class="form-row">
+                ${colorField('card_badge_bg', 'Fond Badge', cc.badgeBg || '#C9A84C')}
+                ${colorField('card_badge_text', 'Texte Badge', cc.badgeText || '#FFFFFF')}
+            </div>
+        `)}
+
+        ${formCard('Couleur par Section', 'colors-sections', `
+            <p class="form-hint" style="margin-bottom:16px;">Personnalisez le fond, texte et titres de chaque section.</p>
+
+            <div class="section-divider"><span>Hero (Accueil)</span></div>
             <div class="form-row">
                 ${colorField('sc_hero_bg', 'Fond', sc.hero?.bg || '#FAF6F0')}
                 ${colorField('sc_hero_text', 'Texte', sc.hero?.text || '#2C2C2C')}
+                ${colorField('sc_hero_title', 'Titre', sc.hero?.titleColor || '#996B2B')}
             </div>
 
             <div class="section-divider"><span>Présentation</span></div>
             <div class="form-row">
                 ${colorField('sc_presentation_bg', 'Fond', sc.presentation?.bg || '#F5EFE6')}
                 ${colorField('sc_presentation_text', 'Texte', sc.presentation?.text || '#2C2C2C')}
+                ${colorField('sc_presentation_title', 'Titre', sc.presentation?.titleColor || '#996B2B')}
             </div>
 
             <div class="section-divider"><span>Produits</span></div>
             <div class="form-row">
                 ${colorField('sc_products_bg', 'Fond', sc.products?.bg || '#FAF6F0')}
                 ${colorField('sc_products_text', 'Texte', sc.products?.text || '#2C2C2C')}
+                ${colorField('sc_products_title', 'Titre', sc.products?.titleColor || '#996B2B')}
             </div>
 
             <div class="section-divider"><span>Événements</span></div>
             <div class="form-row">
                 ${colorField('sc_events_bg', 'Fond', sc.events?.bg || '#F5EFE6')}
                 ${colorField('sc_events_text', 'Texte', sc.events?.text || '#2C2C2C')}
+                ${colorField('sc_events_title', 'Titre', sc.events?.titleColor || '#996B2B')}
             </div>
 
             <div class="section-divider"><span>Témoignages</span></div>
             <div class="form-row">
                 ${colorField('sc_testimonials_bg', 'Fond', sc.testimonials?.bg || '#FAF6F0')}
                 ${colorField('sc_testimonials_text', 'Texte', sc.testimonials?.text || '#2C2C2C')}
+                ${colorField('sc_testimonials_title', 'Titre', sc.testimonials?.titleColor || '#996B2B')}
             </div>
 
-            <div class="section-divider"><span>Devis</span></div>
+            <div class="section-divider"><span>Devis (Formulaire)</span></div>
             <div class="form-row">
                 ${colorField('sc_quote_bg', 'Fond', sc.quote?.bg || '#F5EFE6')}
                 ${colorField('sc_quote_text', 'Texte', sc.quote?.text || '#2C2C2C')}
+                ${colorField('sc_quote_title', 'Titre', sc.quote?.titleColor || '#996B2B')}
             </div>
 
             <div class="section-divider"><span>Contact</span></div>
             <div class="form-row">
                 ${colorField('sc_contact_bg', 'Fond', sc.contact?.bg || '#FAF6F0')}
                 ${colorField('sc_contact_text', 'Texte', sc.contact?.text || '#2C2C2C')}
+                ${colorField('sc_contact_title', 'Titre', sc.contact?.titleColor || '#996B2B')}
             </div>
 
             <div class="section-divider"><span>Footer</span></div>
             <div class="form-row">
-                ${colorField('sc_footer_bg', 'Fond', sc.footer?.bg || '#2C2C2C')}
-                ${colorField('sc_footer_text', 'Texte', sc.footer?.text || '#FAF6F0')}
+                ${colorField('sc_footer_bg', 'Fond', sc.footer?.bg || '#2C2420')}
+                ${colorField('sc_footer_text', 'Texte', sc.footer?.text || '#E8D5A3')}
+                ${colorField('sc_footer_title', 'Titre', sc.footer?.titleColor || '#C9A84C')}
+            </div>
+        `)}
+
+        ${formCard('Bandeau Promo', 'colors-promo', `
+            <div class="form-row">
+                ${colorField('promo_bg', 'Fond Bandeau', c.promoBg || '#C9A84C')}
+                ${colorField('promo_text', 'Texte Bandeau', c.promoText || '#FFFFFF')}
             </div>
         `)}
     `;
@@ -604,25 +657,50 @@ function renderColorsForm() {
 async function saveColors() {
     showLoader();
 
+    // Couleurs principales
     siteDesign.colors = {
         primary: val('color_primary_hex') || '#C9A84C',
         primaryLight: val('color_primaryLight_hex') || '#E8D5A3',
-        primaryDark: siteDesign.colors?.primaryDark || '#8B6914',
+        primaryDark: val('color_primaryDark_hex') || '#8B6914',
+        primaryBright: siteDesign.colors?.primaryBright || '#D4AF37',
+        titleColor: val('color_titleColor_hex') || '#996B2B',
         background: val('color_background_hex') || '#FAF6F0',
         backgroundAlt: val('color_backgroundAlt_hex') || '#F5EFE6',
+        backgroundDark: val('color_backgroundDark_hex') || '#2C2420',
         text: val('color_text_hex') || '#2C2C2C',
-        textLight: val('color_textLight_hex') || '#5A5A5A'
+        textLight: val('color_textLight_hex') || '#5A5A5A',
+        promoBg: val('promo_bg_hex') || '#C9A84C',
+        promoText: val('promo_text_hex') || '#FFFFFF'
     };
 
+    // Couleurs boutons
+    siteDesign.buttonColors = {
+        primaryBg: val('btn_primary_bg_hex') || '#C9A84C',
+        primaryText: val('btn_primary_text_hex') || '#FFFFFF',
+        secondaryBg: val('btn_secondary_bg_hex') || 'transparent',
+        secondaryBorder: val('btn_secondary_border_hex') || '#C9A84C'
+    };
+
+    // Couleurs cartes
+    siteDesign.cardColors = {
+        bg: val('card_bg_hex') || '#FFFFFF',
+        border: val('card_border_hex') || '#E8D5A3',
+        title: val('card_title_hex') || '#2C2C2C',
+        price: val('card_price_hex') || '#C9A84C',
+        badgeBg: val('card_badge_bg_hex') || '#C9A84C',
+        badgeText: val('card_badge_text_hex') || '#FFFFFF'
+    };
+
+    // Couleurs par section
     siteDesign.sectionColors = {
-        hero: { bg: val('sc_hero_bg_hex'), text: val('sc_hero_text_hex') },
-        presentation: { bg: val('sc_presentation_bg_hex'), text: val('sc_presentation_text_hex') },
-        products: { bg: val('sc_products_bg_hex'), text: val('sc_products_text_hex') },
-        events: { bg: val('sc_events_bg_hex'), text: val('sc_events_text_hex') },
-        testimonials: { bg: val('sc_testimonials_bg_hex'), text: val('sc_testimonials_text_hex') },
-        quote: { bg: val('sc_quote_bg_hex'), text: val('sc_quote_text_hex') },
-        contact: { bg: val('sc_contact_bg_hex'), text: val('sc_contact_text_hex') },
-        footer: { bg: val('sc_footer_bg_hex'), text: val('sc_footer_text_hex') }
+        hero: { bg: val('sc_hero_bg_hex'), text: val('sc_hero_text_hex'), titleColor: val('sc_hero_title_hex') },
+        presentation: { bg: val('sc_presentation_bg_hex'), text: val('sc_presentation_text_hex'), titleColor: val('sc_presentation_title_hex') },
+        products: { bg: val('sc_products_bg_hex'), text: val('sc_products_text_hex'), titleColor: val('sc_products_title_hex') },
+        events: { bg: val('sc_events_bg_hex'), text: val('sc_events_text_hex'), titleColor: val('sc_events_title_hex') },
+        testimonials: { bg: val('sc_testimonials_bg_hex'), text: val('sc_testimonials_text_hex'), titleColor: val('sc_testimonials_title_hex') },
+        quote: { bg: val('sc_quote_bg_hex'), text: val('sc_quote_text_hex'), titleColor: val('sc_quote_title_hex') },
+        contact: { bg: val('sc_contact_bg_hex'), text: val('sc_contact_text_hex'), titleColor: val('sc_contact_title_hex') },
+        footer: { bg: val('sc_footer_bg_hex'), text: val('sc_footer_text_hex'), titleColor: val('sc_footer_title_hex') }
     };
 
     try {

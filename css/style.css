@@ -359,7 +359,8 @@ ul {
 .nav__list {
     display: flex;
     align-items: center;
-    gap: 40px;
+    gap: 24px;
+    margin-left: auto;
 }
 
 .nav__link {
@@ -391,6 +392,35 @@ ul {
 .nav__link:hover::after,
 .nav__link.active::after {
     width: 100%;
+}
+
+/* Bouton Instagram dans le header - forme du logo */
+.header__instagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    transition: var(--transition-normal);
+    margin-left: 20px;
+}
+
+.header__instagram svg {
+    width: 26px;
+    height: 26px;
+}
+
+.header__instagram:hover {
+    transform: scale(1.15);
+    filter: brightness(1.1);
+}
+
+/* Séparateur entre les liens de navigation */
+.nav__separator {
+    width: 4px;
+    height: 4px;
+    background-color: var(--gold);
+    border-radius: 50%;
+    opacity: 0.5;
 }
 
 /* Mobile menu toggle */
@@ -2325,10 +2355,8 @@ ul {
    ============================================ */
 .chiffres {
     padding: 60px 0;
-    /* Gradient doré minimaliste */
-    background: linear-gradient(180deg,
-        var(--gold) 0%,
-        var(--gold-dark) 100%
+    /* Fond beige uni */
+    background-color: var(--beige
     );
     position: relative;
 }
@@ -2353,9 +2381,10 @@ ul {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    border: 2px solid var(--gold);
     border-radius: var(--radius-full);
-    color: var(--white);
+    color: var(--gold);
+    background-color: rgba(201, 168, 76, 0.1);
     margin-bottom: 8px;
 }
 
@@ -2368,14 +2397,14 @@ ul {
     font-family: var(--font-title);
     font-size: 36px;
     font-weight: 700;
-    color: var(--white);
+    color: #996B2B;
 }
 
 .chiffres__label {
     font-family: var(--font-body);
     font-size: 15px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--text);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -2932,7 +2961,7 @@ body.custom-cursor-active textarea {
     /* Section Chiffres - Design moderne mobile */
     .chiffres {
         padding: 35px 20px;
-        background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+        background-color: var(--beige);
     }
 
     .chiffres__grid {
@@ -2950,7 +2979,7 @@ body.custom-cursor-active textarea {
         align-items: center;
         gap: 6px;
         padding: 12px 8px;
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.6);
         border-radius: 12px;
         flex: 1;
         min-width: 0;
@@ -2962,7 +2991,7 @@ body.custom-cursor-active textarea {
         min-width: 36px;
         margin-bottom: 0;
         border-width: 1.5px;
-        border-color: rgba(255, 255, 255, 0.6);
+        border-color: var(--gold);
     }
 
     .chiffres__icon svg {
@@ -3107,6 +3136,23 @@ body.custom-cursor-active textarea {
     body > .whatsapp-float,
     .whatsapp-float {
         z-index: 999999 !important;
+    }
+
+    /* Instagram header mobile */
+    .header__instagram {
+        padding: 6px;
+        margin-left: 8px;
+        margin-right: 8px;
+    }
+
+    .header__instagram svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Séparateurs cachés sur mobile */
+    .nav__separator {
+        display: none;
     }
 
     .nav__logo {

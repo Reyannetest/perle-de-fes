@@ -1,6 +1,6 @@
 {
   "hero": {
-    "title": "Perle de Fèss",
+    "title": "Perle de Fès",
     "subtitle": "L'art de personnaliser vos plus beaux souvenirs",
     "tagline": "Cadeaux & créations marocaines faits avec amour, pour vos mariages, hennés et événements.",
     "cta": "Découvrir nos créations",
@@ -22,6 +22,51 @@
     "title": "Nos Créations",
     "subtitle": "Chaque pièce est unique, faite à la main, personnalisable selon vos envies."
   },
+  "events": {
+    "title": "Pour Tous Vos Événements",
+    "subtitle": "Des créations sur mesure pour célébrer chaque moment important de votre vie.",
+    "cards": [
+      {
+        "title": "Mariages",
+        "description": "Des créations uniques pour le plus beau jour de votre vie.",
+        "icon": "heart"
+      },
+      {
+        "title": "Henna Day",
+        "description": "Célébrez la tradition avec élégance.",
+        "icon": "star"
+      },
+      {
+        "title": "Tout autre événement",
+        "description": "Baptêmes, circoncisions, anniversaires... Des créations personnalisées pour tous vos moments précieux.",
+        "icon": "gift"
+      }
+    ]
+  },
+  "testimonials": {
+    "title": "Ce Qu'elles En Disent",
+    "subtitle": "Découvrez les témoignages de nos clientes satisfaites.",
+    "items": [
+      {
+        "author": "Fatima B.",
+        "text": "Absolument magnifique ! Les paniers hammam étaient parfaits pour le henné de ma fille. Un grand merci pour la qualité et les délais respectés.",
+        "event": "Mariage",
+        "stars": 5
+      },
+      {
+        "author": "Samira K.",
+        "text": "Je recommande à 100% ! La personnalisation des dragées était exactement ce que je voulais. Service au top !",
+        "event": "Baby Shower",
+        "stars": 5
+      },
+      {
+        "author": "Nadia M.",
+        "text": "Les invitations étaient sublimes, mes invités ont adoré. Merci pour votre réactivité et votre gentillesse.",
+        "event": "Mariage",
+        "stars": 5
+      }
+    ]
+  },
   "quote": {
     "title": "Demande de devis personnalisé",
     "subtitle": "Remplissez le formulaire et je vous répondrai sous 24-48h !",
@@ -32,14 +77,15 @@
     "subtitle": "Commandes et devis par mail ou WhatsApp. Livraison France entière. Délai 2 semaines paniers, 2-3 semaines papeterie et dragées. Selon stock disponible.",
     "whatsapp": "06 52 37 55 78",
     "whatsappNumber": "33652375578",
-    "instagram": "@perledefes.creation",
-    "instagramUrl": "https://instagram.com/perledefes.creation",
+    "instagram": "@perledefes_creation",
+    "instagramUrl": "https://instagram.com/perledefes_creation",
     "email": "perledefes@outlook.com",
     "deliveryInfo": [
       "Paniers : 2 semaines max",
       "Papeterie & Dragées : 2 à 3 semaines",
       "Selon stock disponible",
-      "Livraison France entière — Colissimo ou Mondial Relay"
+      "Livraison France entière — Colissimo ou Mondial Relay",
+      "Remise en main propre possible dans le 78"
     ]
   },
   "footer": {

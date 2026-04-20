@@ -346,6 +346,49 @@ function applySiteContent() {
             if (logoText) logoText.textContent = c.hero.title;
         }
     }
+
+    // Événements
+    if (c.events) {
+        const eventsTitle = document.querySelector('.events .section__title');
+        const eventsSubtitle = document.querySelector('.events .section__subtitle');
+        if (eventsTitle) eventsTitle.textContent = c.events.title;
+        if (eventsSubtitle) eventsSubtitle.textContent = c.events.subtitle;
+
+        if (c.events.cards) {
+            const eventCards = document.querySelectorAll('.events__card');
+            c.events.cards.forEach((event, i) => {
+                if (eventCards[i]) {
+                    const title = eventCards[i].querySelector('.events__card-title');
+                    const desc = eventCards[i].querySelector('.events__card-desc');
+                    if (title) title.textContent = event.title;
+                    if (desc) desc.textContent = event.description;
+                }
+            });
+        }
+    }
+
+    // Témoignages
+    if (c.testimonials) {
+        const testTitle = document.querySelector('.testimonials .section__title');
+        const testSubtitle = document.querySelector('.testimonials .section__subtitle');
+        if (testTitle) testTitle.textContent = c.testimonials.title;
+        if (testSubtitle) testSubtitle.textContent = c.testimonials.subtitle;
+
+        if (c.testimonials.items) {
+            const testimonialCards = document.querySelectorAll('.testimonial__card');
+            c.testimonials.items.forEach((item, i) => {
+                if (testimonialCards[i]) {
+                    const text = testimonialCards[i].querySelector('.testimonial__text');
+                    const author = testimonialCards[i].querySelector('.testimonial__author');
+                    if (text) {
+                        // Garder les guillemets
+                        text.innerHTML = text.innerHTML.replace(/^["""].*["""]$/, '') + item.text;
+                    }
+                    if (author) author.textContent = `— ${item.author}`;
+                }
+            });
+        }
+    }
 }
 
 // ============================================

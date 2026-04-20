@@ -7,18 +7,18 @@
    1. CSS CUSTOM PROPERTIES
    ============================================ */
 :root {
-    /* Couleurs principales — palette orientale chaude */
+    /* Couleurs principales — palette minimaliste beige/doré */
     --bg-main: #FAF6F0;
-    --bg-section: #F0E8D8;
-    --bg-dark: #2C2420;
+    --bg-section: #F5EFE6;
+    --bg-dark: #3D3630;
     --gold: #C9A84C;
     --gold-light: #E8D5A3;
     --gold-dark: #8B6914;
     --gold-bright: #D4AF37;
-    --bordeaux: #8B2635;
-    --emerald: #2D6A4F;
-    --text: #2C2420;
-    --text-light: #5A5A5A;
+    --beige: #D4C4B0;
+    --beige-dark: #B8A896;
+    --text: #2C2C2C;
+    --text-light: #6B6B6B;
     --white: #FFFFFF;
     --shadow: rgba(201, 168, 76, 0.15);
     --shadow-dark: rgba(44, 44, 44, 0.1);
@@ -66,18 +66,15 @@
     --z-modal: 2000;
     --z-whatsapp: 9999;
 
-    /* Shadows avec couleurs de la palette */
-    --shadow-bordeaux: rgba(139, 38, 53, 0.15);
-    --shadow-emerald: rgba(45, 106, 79, 0.15);
 }
 
 /* ============================================
-   UTILISATION SUBTILE DE LA PALETTE COMPLETE
+   STYLES MINIMALISTES BEIGE/DORÉ
    ============================================ */
 
-/* Accents bordeaux sur certains elements hover */
+/* Accents dorés sur hover */
 .nav__link:hover {
-    color: var(--bordeaux);
+    color: var(--gold);
 }
 
 /* Focus states avec or brillant */
@@ -90,9 +87,9 @@ select:focus-visible {
     outline-offset: 2px;
 }
 
-/* Selection text avec bordeaux */
+/* Selection text dorée */
 ::selection {
-    background-color: var(--bordeaux);
+    background-color: var(--gold);
     color: var(--white);
 }
 
@@ -883,19 +880,19 @@ ul {
 }
 
 .feature:nth-child(2) .feature__icon {
-    border-color: var(--bordeaux);
-    color: var(--bordeaux);
+    border-color: var(--gold-dark);
+    color: var(--gold-dark);
 }
 .feature:nth-child(2):hover .feature__icon {
-    background-color: var(--bordeaux);
+    background-color: var(--gold-dark);
 }
 
 .feature:nth-child(3) .feature__icon {
-    border-color: var(--emerald);
-    color: var(--emerald);
+    border-color: var(--beige-dark);
+    color: var(--beige-dark);
 }
 .feature:nth-child(3):hover .feature__icon {
-    background-color: var(--emerald);
+    background-color: var(--beige-dark);
 }
 
 .feature__text {
@@ -1027,15 +1024,15 @@ ul {
     box-shadow: 0 2px 8px rgba(201, 168, 76, 0.4);
 }
 
-/* Variantes de badges avec toute la palette */
-.product-card__badge--bordeaux {
-    background: linear-gradient(135deg, var(--bordeaux) 0%, #6B1D2A 100%);
-    box-shadow: 0 2px 8px var(--shadow-bordeaux);
+/* Variantes de badges minimalistes */
+.product-card__badge--dark {
+    background: linear-gradient(135deg, var(--gold-dark) 0%, #6B5010 100%);
+    box-shadow: 0 2px 8px var(--shadow-gold);
 }
 
-.product-card__badge--emerald {
-    background: linear-gradient(135deg, var(--emerald) 0%, #1E4D3A 100%);
-    box-shadow: 0 2px 8px var(--shadow-emerald);
+.product-card__badge--light {
+    background: linear-gradient(135deg, var(--beige-dark) 0%, #9A8A78 100%);
+    box-shadow: 0 2px 8px var(--shadow-dark);
 }
 
 .product-card__title {
@@ -1573,12 +1570,6 @@ ul {
    ============================================ */
 .quote {
     padding: var(--section-padding) 0;
-    /* Transition douce depuis bordeaux vers beige soutenu */
-    background: linear-gradient(180deg,
-        rgba(139, 38, 53, 0.08) 0%,
-        var(--bg-section) 6%,
-        var(--bg-section) 100%
-    );
     background-color: var(--bg-section);
     position: relative;
     overflow: hidden;
@@ -1875,36 +1866,36 @@ ul {
     height: 32px;
 }
 
-/* WhatsApp - accent emeraude */
+/* WhatsApp - accent doré */
 .contact__icon--whatsapp {
-    background-color: rgba(45, 106, 79, 0.1);
-    color: var(--emerald);
-}
-
-.contact__card:hover .contact__icon--whatsapp {
-    background: linear-gradient(135deg, var(--emerald) 0%, #1E4D3A 100%);
-    color: var(--white);
-}
-
-/* Instagram - accent dore */
-.contact__icon--instagram {
     background-color: rgba(201, 168, 76, 0.1);
     color: var(--gold);
 }
 
-.contact__card:hover .contact__icon--instagram {
+.contact__card:hover .contact__icon--whatsapp {
     background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
     color: var(--white);
 }
 
-/* Email - accent bordeaux */
+/* Instagram - accent doré clair */
+.contact__icon--instagram {
+    background-color: rgba(232, 213, 163, 0.3);
+    color: var(--gold-dark);
+}
+
+.contact__card:hover .contact__icon--instagram {
+    background: linear-gradient(135deg, var(--gold-dark) 0%, #6B5010 100%);
+    color: var(--white);
+}
+
+/* Email - accent beige */
 .contact__icon--email {
-    background-color: rgba(139, 38, 53, 0.1);
-    color: var(--bordeaux);
+    background-color: rgba(184, 168, 150, 0.2);
+    color: var(--beige-dark);
 }
 
 .contact__card:hover .contact__icon--email {
-    background: linear-gradient(135deg, var(--bordeaux) 0%, #6B1D2A 100%);
+    background: linear-gradient(135deg, var(--beige-dark) 0%, #9A8A78 100%);
     color: var(--white);
 }
 
@@ -2313,11 +2304,10 @@ ul {
    ============================================ */
 .chiffres {
     padding: 60px 0;
-    /* Gradient doré avec transition douce vers bordeaux en bas */
+    /* Gradient doré minimaliste */
     background: linear-gradient(180deg,
         var(--gold) 0%,
-        var(--gold-dark) 60%,
-        #8B5A2B 100%
+        var(--gold-dark) 100%
     );
     position: relative;
 }
@@ -2374,25 +2364,23 @@ ul {
    ============================================ */
 .testimonials {
     padding: var(--section-padding) 0;
-    /* Gradient bordeaux avec transition depuis brun */
+    /* Fond beige nude élégant */
     background: linear-gradient(180deg,
-        #8B5A2B 0%,
-        var(--bordeaux) 8%,
-        var(--bordeaux) 92%,
-        #6B1D2A 100%
+        var(--beige) 0%,
+        var(--beige-dark) 100%
     );
     position: relative;
     overflow: hidden;
 }
 
-/* Texture subtile sur testimonials */
+/* Texture subtile dorée sur testimonials */
 .testimonials::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='white' stroke-width='0.3'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3Ccircle cx='30' cy='30' r='12'/%3E%3Cpath d='M30 10 L30 50 M10 30 L50 30'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23C9A84C' stroke-width='0.3'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3Ccircle cx='30' cy='30' r='12'/%3E%3Cpath d='M30 10 L30 50 M10 30 L50 30'/%3E%3C/g%3E%3C/svg%3E");
     background-size: 60px 60px;
-    opacity: 0.05;
+    opacity: 0.08;
     pointer-events: none;
 }
 
@@ -2409,11 +2397,11 @@ ul {
 }
 
 .testimonials .section__title {
-    color: var(--gold);
+    color: var(--gold-dark);
 }
 
 .testimonials .section__subtitle {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-light);
 }
 
 .testimonials .container {
@@ -2429,9 +2417,9 @@ ul {
 }
 
 .testimonial__card {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(201, 168, 76, 0.3);
+    background: var(--white);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(201, 168, 76, 0.2);
     border-radius: var(--radius-medium);
     padding: 32px;
     text-align: center;
@@ -2441,7 +2429,7 @@ ul {
 .testimonial__card:hover {
     transform: translateY(-4px);
     border-color: var(--gold);
-    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 30px rgba(201, 168, 76, 0.15);
 }
 
 .testimonial__stars {
@@ -2462,7 +2450,7 @@ ul {
     font-family: var(--font-title);
     font-size: 17px;
     font-style: italic;
-    color: var(--white);
+    color: var(--text);
     line-height: 1.7;
     margin-bottom: 20px;
 }
@@ -2480,7 +2468,7 @@ ul {
     font-family: var(--font-body);
     font-size: 14px;
     font-weight: 600;
-    color: var(--gold-light);
+    color: var(--gold-dark);
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
